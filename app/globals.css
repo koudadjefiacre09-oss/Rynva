@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+
+    /* Light palette (default) — RGB triplets consumed as rgb(var(--x) / <alpha-value>) */
+    --color-background: 255 255 255;
+    --color-surface: 250 250 250;
+    --color-surface-secondary: 244 244 245;
+    --color-border: 228 228 231;
+    --color-text-primary: 24 24 27;
+    --color-text-secondary: 113 113 122;
+    --color-text-muted: 161 161 170;
+    --color-checker: 228 228 231; /* zinc-200 — transparency checkerboard */
+  }
+
+  .dark {
+    color-scheme: dark;
+
+    /* Dark palette — the original RYNVA navy theme */
+    --color-background: 7 9 16;
+    --color-surface: 16 21 34;
+    --color-surface-secondary: 21 27 42;
+    --color-border: 41 48 68;
+    --color-text-primary: 255 255 255;
+    --color-text-secondary: 181 184 200;
+    --color-text-muted: 119 125 145;
+    --color-checker: 39 39 42; /* zinc-800 */
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-text-primary antialiased;
+    font-feature-settings: "cv11", "ss01";
+  }
+
+  ::selection {
+    background: rgba(120, 92, 255, 0.35);
+  }
+
+  /* Visible keyboard focus everywhere — accessibility floor */
+  :focus-visible {
+    outline: 2px solid #785cff;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer utilities {
+  .text-gradient-brand {
+    background: linear-gradient(135deg, #785cff 0%, #3d88ff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .bg-noise {
+    background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 3px 3px;
+  }
+}

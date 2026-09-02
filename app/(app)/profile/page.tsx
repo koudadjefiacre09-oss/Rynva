@@ -1,0 +1,101 @@
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { CreditCard, Sparkles } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { ProfileForm } from "@/components/profile/profile-form";
+import { AvatarUploader } from "@/components/profile/avatar-uploader";
+import { createClient } from "@/lib/supabase/server";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { getProfile } from "@/lib/profiles/get";
+
+export const metadata: Metadata = { title: "Mon profil" };
+
+const PLAN_BADGE: Record<string, string> = { free: "Free", pro: "Pro" };
+const PLAN_LABEL: Record<string, string> = {
+  free: "Plan Personnel · Gratuit",
+  pro: "Plan Pro",
+};
+
+export default async function ProfilePage() {
+  if (!isSupabaseConfigured) redirect("/login");
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const profile = await getProfile(user.id);
+  const fullName = (user.user_metadata?.full_name as string | undefined) ?? "";
+  const memberSince = new Intl.DateTimeFormat("fr-FR", { dateStyle: "long" }).format(
+    new Date(user.created_at)
+  );
+
+  return (
+    <div className="-m-4 min-h-[calc(100vh-4rem)] bg-white px-4 py-10 dark:bg-black lg:-m-6 lg:px-8">
+      <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-white">
+            Mon profil
+          </h1>
+          <p className="mt-1.5 text-sm text-zinc-500">
+            Gérez vos informations personnelles et votre compte RYNVA.
+          </p>
+        </div>
+
+        <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none sm:p-6">
+          <h2 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            Informations personnelles
+          </h2>
+
+          <div className="mt-4">
+            <AvatarUploader
+              name={fullName || user.email || "Utilisateur"}
+              initialAvatarUrl={profile.avatarUrl}
+            />
+          </div>
+
+          <div className="mt-5 flex flex-col gap-1.5">
+            <span className="text-xs font-medium text-zinc-500">Email</span>
+            <p className="text-sm text-zinc-600 dark:text-zinc-400">{user.email}</p>
+          </div>
+
+          <div className="mt-5 border-t border-zinc-100 pt-5 dark:border-zinc-800">
+            <ProfileForm defaultName={fullName} />
+          </div>
+        </section>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none sm:p-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                Solde de crédits
+              </h2>
+              <Badge variant="brand">
+                <Sparkles className="h-3 w-3" />
+                {PLAN_BADGE[profile.plan] ?? "Free"}
+              </Badge>
+            </div>
+            <p className="mt-4 text-3xl font-semibold tracking-tight text-zinc-900 dark:text-white">
+              {profile.credits}
+              <span className="ml-1.5 text-sm font-normal text-zinc-500">crédits</span>
+            </p>
+          </section>
+
+          <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none sm:p-6">
+            <h2 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              Statut du compte
+            </h2>
+            <div className="mt-4 flex items-center gap-2.5">
+              <CreditCard className="h-4 w-4 text-zinc-400" />
+              <p className="text-sm text-zinc-900 dark:text-white">
+                {PLAN_LABEL[profile.plan] ?? PLAN_LABEL.free}
+              </p>
+            </div>
+            <p className="mt-2 text-xs text-zinc-500">Membre depuis le {memberSince}</p>
+          </section>
+        </div>
+      </div>
+    </div>
+  );
+}
