@@ -56,6 +56,8 @@ const config: Config = {
         "gradient-accent": "linear-gradient(135deg, #A855F7 0%, #3D88FF 100%)",
         "gradient-radial-glow":
           "radial-gradient(circle at 50% 0%, rgba(120,92,255,0.25) 0%, rgba(7,9,16,0) 60%)",
+        // Marketing landing page palette — blue accent on black/gray-900.
+        "gradient-blue": "linear-gradient(135deg, #2563EB 0%, #38BDF8 100%)",
       },
       boxShadow: {
         glow: "0 0 40px -10px rgba(120, 92, 255, 0.45)",

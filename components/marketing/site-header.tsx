@@ -7,8 +7,10 @@ import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getProfile, type Profile } from "@/lib/profiles/get";
 
 const navLinks = [
-  { href: "/features", label: "Fonctionnalités" },
-  { href: "/pricing", label: "Tarifs" },
+  { href: "/#fonctionnalites", label: "Fonctionnalités" },
+  { href: "/#comment-ca-marche", label: "Comment ça marche" },
+  { href: "/#exemples", label: "Exemples" },
+  { href: "/#tarifs", label: "Tarifs" },
   { href: "/about", label: "À propos" },
 ];
 
@@ -39,9 +41,13 @@ export async function SiteHeader() {
           <span className="text-base font-semibold tracking-tight">RYNVA</span>
         </Link>
 
-        <nav className="ml-10 hidden items-center gap-7 text-sm text-text-secondary md:flex">
+        <nav className="ml-10 hidden items-center gap-6 text-sm text-text-secondary lg:flex">
           {navLinks.map((link) => (
-            <Link key={link.href} href={link.href} className="hover:text-text-primary">
+            <Link
+              key={link.href}
+              href={link.href}
+              className="relative py-1 transition-colors hover:text-text-primary [text-wrap:nowrap]"
+            >
               {link.label}
             </Link>
           ))}

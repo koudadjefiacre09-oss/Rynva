@@ -39,7 +39,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fr" className={inter.variable} suppressHydrationWarning>
+    <html lang="fr" className={`${inter.variable} scroll-smooth`} suppressHydrationWarning>
       <body>
         <ThemeScript />
         <ThemeProvider>
