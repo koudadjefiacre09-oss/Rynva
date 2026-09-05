@@ -50,7 +50,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
           notifications={notifications}
           unreadNotificationsCount={unreadNotificationsCount}
         />
-        <main className="m-3 flex-1 overflow-y-auto rounded-3xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 lg:p-6">
+        <main className="thin-scrollbar m-3 flex-1 overflow-y-auto rounded-3xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 lg:p-6">
           {children}
         </main>
       </div>

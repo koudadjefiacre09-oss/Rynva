@@ -87,4 +87,36 @@
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
+
+  /* Thin, borderless scrollbar — no up/down arrow buttons, just a discreet
+     rounded thumb. Used where content still needs to scroll (the main
+     content card) but the default OS scrollbar looks out of place next to
+     the rounded-card layout. */
+  .thin-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(0 0 0 / 0.15) transparent;
+  }
+  .thin-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .thin-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .thin-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgb(0 0 0 / 0.15);
+    border-radius: 9999px;
+  }
+  .thin-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(0 0 0 / 0.28);
+  }
+  .dark .thin-scrollbar {
+    scrollbar-color: rgb(255 255 255 / 0.15) transparent;
+  }
+  .dark .thin-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgb(255 255 255 / 0.15);
+  }
+  .dark .thin-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(255 255 255 / 0.28);
+  }
 }
