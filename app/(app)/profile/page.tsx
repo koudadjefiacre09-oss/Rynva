@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { CreditCard, Sparkles } from "lucide-react";
+import { CreditCard } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ProfileForm } from "@/components/profile/profile-form";
 import { AvatarUploader } from "@/components/profile/avatar-uploader";
@@ -57,7 +57,7 @@ export default async function ProfilePage() {
                 initialAvatarUrl={profile.avatarUrl}
               />
 
-              <div className="grid flex-1 grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="flex flex-1 flex-col gap-4">
                 <div className="flex flex-col gap-1.5">
                   <span className="text-xs font-medium text-zinc-500">Email</span>
                   <p className="text-sm text-zinc-600 dark:text-zinc-400">{user.email}</p>
@@ -73,10 +73,7 @@ export default async function ProfilePage() {
                 <h2 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
                   Crédits utilisés
                 </h2>
-                <Badge variant="brand">
-                  <Sparkles className="h-3 w-3" />
-                  {PLAN_BADGE[profile.plan] ?? "Free"}
-                </Badge>
+                <Badge variant="brand">{PLAN_BADGE[profile.plan] ?? "Free"}</Badge>
               </div>
               <p className="mt-4 text-3xl font-semibold tracking-tight text-zinc-900 dark:text-white">
                 {profile.tokensConsumed}
