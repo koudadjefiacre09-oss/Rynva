@@ -27,16 +27,16 @@ export function AuthShell({
     // Fixed light editorial look, same fixed palette as the marketing
     // landing page — not theme-toggled, so it stays consistent whether the
     // visitor arrived with dark mode on or off.
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-cream px-4 py-12 font-display">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-cream px-4 py-6 font-display">
       <div className={`relative w-full ${MAX_WIDTH[maxWidth]}`}>
-        <Link href="/" className="mb-8 flex items-center justify-center gap-2.5">
-          <Image src="/logo.png" alt="RYNVA" width={32} height={32} />
-          <span className="text-lg font-semibold tracking-tight text-ink">RYNVA</span>
+        <Link href="/" className="mb-4 flex items-center justify-center gap-2.5">
+          <Image src="/logo.png" alt="RYNVA" width={28} height={28} />
+          <span className="text-base font-semibold tracking-tight text-ink">RYNVA</span>
         </Link>
 
-        <div className="rounded-3xl border border-ink/10 bg-white p-6 shadow-[0_24px_60px_-24px_rgba(20,20,18,0.25)] sm:p-8">
+        <div className="rounded-3xl border border-ink/10 bg-white p-5 shadow-[0_24px_60px_-24px_rgba(20,20,18,0.25)] sm:p-6">
           {activeTab && (
-            <div className="mb-6 flex rounded-full border border-ink/10 bg-cream p-1">
+            <div className="mb-4 flex rounded-full border border-ink/10 bg-cream p-1">
               <Link
                 href="/login"
                 className={`flex-1 rounded-full py-2 text-center text-sm font-medium transition-colors ${
@@ -56,14 +56,14 @@ export function AuthShell({
             </div>
           )}
 
-          <div className="mb-6 text-center">
+          <div className="mb-4 text-center">
             <h1 className="text-xl font-medium tracking-tight text-ink">{title}</h1>
             {description && <p className="mt-1.5 text-sm text-ink-muted">{description}</p>}
           </div>
           {children}
         </div>
 
-        {footer && <div className="mt-6 text-center text-sm text-ink-muted">{footer}</div>}
+        {footer && <div className="mt-4 text-center text-sm text-ink-muted">{footer}</div>}
       </div>
     </div>
   );

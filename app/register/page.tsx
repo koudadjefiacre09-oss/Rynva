@@ -22,7 +22,7 @@ export default function RegisterPage() {
         </>
       }
     >
-      <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-3">
         <RegisterForm />
         <AuthDivider />
         <GoogleButton />

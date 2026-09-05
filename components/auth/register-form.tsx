@@ -28,8 +28,8 @@ export function RegisterForm() {
   const [state, formAction] = useFormState(register, null);
 
   return (
-    <form action={formAction} className="flex flex-col gap-4">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <form action={formAction} className="flex flex-col gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5">
           <label htmlFor="fullName" className="text-sm font-medium text-ink-muted">
             Nom complet
