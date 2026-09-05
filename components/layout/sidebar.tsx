@@ -42,6 +42,15 @@ const navItems = [
  * Persistent desktop sidebar (per brief: desktop keeps a persistent sidebar,
  * mobile gets its own adapted nav — see MobileNav, not included in this file).
  *
+ * Deliberately always dark (bg-ink, RYNVA's own near-black from the landing
+ * page palette — see tailwind.config.ts) regardless of the app's own
+ * light/dark toggle, Vercel/Linear-style: a permanently dark rail reads as
+ * more premium and minimal than one that flips with the theme, and it's the
+ * one brand color guaranteed to look right against both light- and dark-mode
+ * content next to it. Active item is a solid white pill (bg-white text-ink),
+ * everything else sits at low-opacity white so the active state is the only
+ * thing competing for attention.
+ *
  * Collapsible, Magnific-AI-style: collapsed by default to a thin icon-only
  * rail (w-16, monochrome), expands to w-64 with labels on toggle. `isOpen`
  * lives locally — it survives navigation between pages on its own since this
@@ -55,17 +64,12 @@ export function Sidebar({ isAdmin = false }: { isAdmin?: boolean }) {
   return (
     <aside
       className={cn(
-        "hidden lg:flex lg:h-full lg:shrink-0 lg:flex-col lg:border-r lg:border-zinc-100 lg:bg-white lg:transition-all lg:duration-300 lg:ease-in-out dark:lg:border-zinc-800/50 dark:lg:bg-black",
+        "hidden lg:flex lg:h-full lg:shrink-0 lg:flex-col lg:bg-ink lg:transition-all lg:duration-300 lg:ease-in-out",
         isOpen ? "lg:w-64" : "lg:w-16"
       )}
     >
       <div className={cn("flex h-16 items-center", isOpen ? "gap-2.5 px-5" : "justify-center px-0")}>
-        <Image src="/logo.png" alt="RYNVA" width={50} height={50} className="shrink-0" />
-        {/* {isOpen && (
-          <span className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-white">
-            YNVA
-          </span>
-        )} */}
+        <Image src="/logo-icon.png" alt="RYNVA" width={30} height={30} className="shrink-0 rounded-md" />
       </div>
 
       <div className={cn("px-3 pb-2", isOpen ? "flex justify-end" : "flex justify-center")}>
@@ -74,7 +78,7 @@ export function Sidebar({ isAdmin = false }: { isAdmin?: boolean }) {
           onClick={() => setIsOpen((open) => !open)}
           aria-label={isOpen ? "Réduire la barre latérale" : "Ouvrir la barre latérale"}
           aria-expanded={isOpen}
-          className="flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-100 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:border-zinc-800 dark:text-zinc-500 dark:hover:bg-zinc-900 dark:hover:text-white"
+          className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 text-white/50 transition-colors hover:bg-white/5 hover:text-white"
         >
           <ChevronRight
             className={cn("h-4 w-4 transition-transform duration-300 ease-in-out", isOpen && "rotate-180")}
@@ -93,31 +97,31 @@ export function Sidebar({ isAdmin = false }: { isAdmin?: boolean }) {
               aria-current={isActive ? "page" : undefined}
               title={!isOpen ? item.label : undefined}
               className={cn(
-                "flex items-center gap-3 rounded-lg py-2.5 text-sm font-medium transition-colors",
-                isOpen ? "px-3" : "justify-center px-0",
+                "flex items-center gap-3 rounded-full py-2.5 text-sm font-medium transition-colors",
+                isOpen ? "px-3.5" : "justify-center px-0",
                 isActive
-                  ? "bg-zinc-100 text-zinc-900 dark:bg-zinc-900 dark:text-white"
-                  : "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-500 dark:hover:bg-zinc-900 dark:hover:text-white"
+                  ? "bg-white text-ink shadow-sm"
+                  : "text-white/50 hover:bg-white/5 hover:text-white"
               )}
             >
-              <Icon
-                className={cn("h-4.5 w-4.5 shrink-0", isActive && isOpen && "text-brand-purple")}
-                strokeWidth={2}
-              />
+              <Icon className="h-4.5 w-4.5 shrink-0" strokeWidth={2} />
               {isOpen && <span className="truncate">{item.label}</span>}
             </Link>
           );
         })}
       </nav>
 
-      <div className="border-t border-zinc-100 p-3 dark:border-zinc-800/50">
+      <div className="border-t border-white/10 p-3">
         {isAdmin && (
           <Link
             href="/admin"
             title={!isOpen ? "Admin" : undefined}
             className={cn(
-              "mb-1 flex items-center gap-3 rounded-lg py-2.5 text-sm font-medium text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-500 dark:hover:bg-zinc-900 dark:hover:text-white",
-              isOpen ? "px-3" : "justify-center px-0"
+              "mb-1 flex items-center gap-3 rounded-full py-2.5 text-sm font-medium transition-colors",
+              isOpen ? "px-3.5" : "justify-center px-0",
+              pathname === "/admin"
+                ? "bg-white text-ink shadow-sm"
+                : "text-white/50 hover:bg-white/5 hover:text-white"
             )}
           >
             <ShieldCheck className="h-4.5 w-4.5 shrink-0" strokeWidth={2} />
@@ -128,8 +132,11 @@ export function Sidebar({ isAdmin = false }: { isAdmin?: boolean }) {
           href="/settings"
           title={!isOpen ? "Paramètres" : undefined}
           className={cn(
-            "flex items-center gap-3 rounded-lg py-2.5 text-sm font-medium text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-500 dark:hover:bg-zinc-900 dark:hover:text-white",
-            isOpen ? "px-3" : "justify-center px-0"
+            "flex items-center gap-3 rounded-full py-2.5 text-sm font-medium transition-colors",
+            isOpen ? "px-3.5" : "justify-center px-0",
+            pathname === "/settings"
+              ? "bg-white text-ink shadow-sm"
+              : "text-white/50 hover:bg-white/5 hover:text-white"
           )}
         >
           <Settings className="h-4.5 w-4.5 shrink-0" strokeWidth={2} />
