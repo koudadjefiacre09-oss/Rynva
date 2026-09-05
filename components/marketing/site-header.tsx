@@ -37,7 +37,7 @@ export async function SiteHeader() {
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-border/60 bg-background/70 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-6xl items-center px-6">
+      <div className="mx-auto flex h-16 max-w-7xl items-center px-4 sm:px-6">
         <Link href="/" className="flex items-center">
           <Image src="/logo-icon.png" alt="RYNVA" width={40} height={40} className="h-10 w-10" priority />
         </Link>

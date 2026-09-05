@@ -17,7 +17,7 @@ const tools = [
     label: "Vidéo",
     href: "/ai/video",
     desc: "Transformez une idée en clip vidéo court, prêt à partager.",
-    pos: { x: 8, y: 50 },
+    pos: { x: 84, y: 18 },
   },
   {
     icon: "/icones/photo.png",
@@ -31,7 +31,7 @@ const tools = [
     label: "Design",
     href: "/ai/design",
     desc: "Créez posts, stories et bannières au bon format.",
-    pos: { x: 84, y: 18 },
+    pos: { x: 8, y: 50 },
   },
   {
     icon: "/icones/audio.png",
@@ -114,10 +114,10 @@ export function ToolsTeaser() {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true, margin: "-10% 0px" }}
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="absolute left-1/2 top-1/2 z-10 h-20 w-20 -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-ink shadow-[0_16px_40px_-16px_rgba(20,20,18,0.5)]"
+            className="absolute left-1/2 top-1/2 z-10 h-14 w-32 -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-ink shadow-[0_16px_40px_-16px_rgba(20,20,18,0.5)]"
           >
-            <div className="relative h-full w-full p-6">
-              <Image src="/logo.png" alt="RYNVA" fill sizes="80px" className="object-contain" />
+            <div className="relative h-full w-full p-2">
+              <Image src="/logo-full.png" alt="RYNVA" fill sizes="128px" className="object-contain" />
             </div>
           </motion.div>
 
