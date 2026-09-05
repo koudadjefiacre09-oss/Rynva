@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { Plus } from "lucide-react";
 import { redirect } from "next/navigation";
 import { GalleryGrid } from "@/components/gallery/gallery-grid";
 import { createClient } from "@/lib/supabase/server";
@@ -20,11 +22,22 @@ export default async function ProjectsPage() {
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">Projets</h1>
-        <p className="mt-1 text-sm text-zinc-500">
-          Toutes vos créations, générées automatiquement à chaque utilisation d&apos;un outil IA.
-        </p>
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-white">
+            Projets
+          </h1>
+          <p className="mt-1 text-sm text-zinc-500">
+            Toutes vos créations, générées automatiquement à chaque utilisation d&apos;un outil IA.
+          </p>
+        </div>
+        <Link
+          href="/ai/image"
+          className="flex shrink-0 items-center gap-1.5 rounded-full bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-black dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
+        >
+          <Plus className="h-4 w-4" />
+          Nouvelle création
+        </Link>
       </div>
 
       <GalleryGrid items={items} />

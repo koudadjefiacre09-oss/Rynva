@@ -68,11 +68,16 @@ export async function uploadAvatar(formData: FormData): Promise<UploadAvatarResu
 
   const admin = createAdminClient();
   const path = `${user.id}/avatar.${extension}`;
-  const bytes = await file.arrayBuffer();
 
+  // Uploading the File/Blob directly (instead of its raw ArrayBuffer) makes
+  // storage-js send it as multipart/form-data, where the content-type rides
+  // along as part of that form field instead of being hand-assigned to a
+  // plain `headers['content-type'] = ...` string — which is the actual
+  // ByteString-unsafe path once a file carries any metadata storage-js
+  // doesn't fully control. Passing the Blob sidesteps that path entirely.
   const { error: uploadError } = await admin.storage
     .from("avatars")
-    .upload(path, bytes, { upsert: true, contentType });
+    .upload(path, file, { upsert: true, contentType });
   if (uploadError) {
     console.error("[uploadAvatar] storage upload failed:", uploadError.message);
     return { error: `Échec de l'envoi : ${uploadError.message}` };
