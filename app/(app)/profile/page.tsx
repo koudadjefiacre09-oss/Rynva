@@ -33,7 +33,7 @@ export default async function ProfilePage() {
 
   return (
     <div className="-m-4 min-h-[calc(100vh-4rem)] bg-white px-4 py-10 dark:bg-black lg:-m-6 lg:px-8">
-      <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-white">
             Mon profil
@@ -43,57 +43,60 @@ export default async function ProfilePage() {
           </p>
         </div>
 
-        <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none sm:p-6">
-          <h2 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-            Informations personnelles
-          </h2>
-
-          <div className="mt-4">
-            <AvatarUploader
-              name={fullName || user.email || "Utilisateur"}
-              initialAvatarUrl={profile.avatarUrl}
-            />
-          </div>
-
-          <div className="mt-5 flex flex-col gap-1.5">
-            <span className="text-xs font-medium text-zinc-500">Email</span>
-            <p className="text-sm text-zinc-600 dark:text-zinc-400">{user.email}</p>
-          </div>
-
-          <div className="mt-5 border-t border-zinc-100 pt-5 dark:border-zinc-800">
-            <ProfileForm defaultName={fullName} />
-          </div>
-        </section>
-
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none sm:p-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                Crédits utilisés
-              </h2>
-              <Badge variant="brand">
-                <Sparkles className="h-3 w-3" />
-                {PLAN_BADGE[profile.plan] ?? "Free"}
-              </Badge>
-            </div>
-            <p className="mt-4 text-3xl font-semibold tracking-tight text-zinc-900 dark:text-white">
-              {profile.tokensConsumed}
-              <span className="ml-1.5 text-sm font-normal text-zinc-500">crédits</span>
-            </p>
-          </section>
-
+        {/* Wide layout: main info card + a narrower stats column, so
+            everything fits on one screen instead of stacking full-width. */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px] lg:items-start">
           <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none sm:p-6">
             <h2 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-              Statut du compte
+              Informations personnelles
             </h2>
-            <div className="mt-4 flex items-center gap-2.5">
-              <CreditCard className="h-4 w-4 text-zinc-400" />
-              <p className="text-sm text-zinc-900 dark:text-white">
-                {PLAN_LABEL[profile.plan] ?? PLAN_LABEL.free}
-              </p>
+
+            <div className="mt-5 flex flex-col gap-6 sm:flex-row sm:items-start">
+              <AvatarUploader
+                name={fullName || user.email || "Utilisateur"}
+                initialAvatarUrl={profile.avatarUrl}
+              />
+
+              <div className="grid flex-1 grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-xs font-medium text-zinc-500">Email</span>
+                  <p className="text-sm text-zinc-600 dark:text-zinc-400">{user.email}</p>
+                </div>
+                <ProfileForm defaultName={fullName} />
+              </div>
             </div>
-            <p className="mt-2 text-xs text-zinc-500">Membre depuis le {memberSince}</p>
           </section>
+
+          <div className="flex flex-col gap-6">
+            <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none sm:p-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                  Crédits utilisés
+                </h2>
+                <Badge variant="brand">
+                  <Sparkles className="h-3 w-3" />
+                  {PLAN_BADGE[profile.plan] ?? "Free"}
+                </Badge>
+              </div>
+              <p className="mt-4 text-3xl font-semibold tracking-tight text-zinc-900 dark:text-white">
+                {profile.tokensConsumed}
+                <span className="ml-1.5 text-sm font-normal text-zinc-500">crédits</span>
+              </p>
+            </section>
+
+            <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none sm:p-6">
+              <h2 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                Statut du compte
+              </h2>
+              <div className="mt-4 flex items-center gap-2.5">
+                <CreditCard className="h-4 w-4 text-zinc-400" />
+                <p className="text-sm text-zinc-900 dark:text-white">
+                  {PLAN_LABEL[profile.plan] ?? PLAN_LABEL.free}
+                </p>
+              </div>
+              <p className="mt-2 text-xs text-zinc-500">Membre depuis le {memberSince}</p>
+            </section>
+          </div>
         </div>
       </div>
     </div>
