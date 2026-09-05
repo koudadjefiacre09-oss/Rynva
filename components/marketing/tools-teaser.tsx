@@ -108,18 +108,24 @@ export function ToolsTeaser() {
             ))}
           </svg>
 
-          {/* central hub */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.85 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true, margin: "-10% 0px" }}
-            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="absolute left-1/2 top-1/2 z-10 h-14 w-32 -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-ink shadow-[0_16px_40px_-16px_rgba(20,20,18,0.5)]"
-          >
-            <div className="relative h-full w-full p-2">
-              <Image src="/logo-full.png" alt="RYNVA" fill sizes="128px" className="object-contain" />
-            </div>
-          </motion.div>
+          {/* central hub — positioning lives on this static wrapper, not the
+              motion.div below: framer-motion writes its own `transform` for
+              the scale animation, which clobbers a Tailwind
+              -translate-x-1/2 -translate-y-1/2 on the same element and
+              throws the centering off. */}
+          <div className="absolute left-1/2 top-1/2 z-10 h-14 w-32 -translate-x-1/2 -translate-y-1/2">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.85 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true, margin: "-10% 0px" }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              className="h-full w-full rounded-2xl bg-ink shadow-[0_16px_40px_-16px_rgba(20,20,18,0.5)]"
+            >
+              <div className="relative h-full w-full p-2">
+                <Image src="/logo-full.png" alt="RYNVA" fill sizes="128px" className="object-contain" />
+              </div>
+            </motion.div>
+          </div>
 
           {/* tool badges, each with a hover card describing the tool */}
           {tools.map((tool, i) => (
