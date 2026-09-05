@@ -81,6 +81,10 @@ export async function register(
   const supabase = await createClient();
   const origin = (await headers()).get("origin");
   const country = await getCountryFromRequest();
+  // From the "Invite friends" link (?ref=<user-id>, see components/layout/
+  // topbar.tsx) — the signup trigger (migration 0013) validates and copies
+  // it into profiles.referred_by; never trusted as-is here.
+  const referredBy = formData.get("ref")?.toString() || undefined;
 
   const { data, error } = await supabase.auth.signUp({
     email: parsed.data.email,
@@ -89,7 +93,7 @@ export async function register(
       // `country` is only ever non-null behind an edge network that sets it
       // (see lib/geo.ts) — the signup trigger (migration 0006) copies it
       // from here into profiles.country.
-      data: { full_name: parsed.data.fullName, country },
+      data: { full_name: parsed.data.fullName, country, referred_by: referredBy },
       emailRedirectTo: `${origin}/auth/callback`,
     },
   });

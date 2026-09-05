@@ -6,7 +6,11 @@ import { GoogleButton } from "@/components/auth/google-button";
 
 export const metadata: Metadata = { title: "Créer un compte" };
 
-export default function RegisterPage() {
+export default function RegisterPage({
+  searchParams,
+}: {
+  searchParams: { ref?: string };
+}) {
   return (
     <AuthShell
       activeTab="register"
@@ -23,7 +27,7 @@ export default function RegisterPage() {
       }
     >
       <div className="flex flex-col gap-3">
-        <RegisterForm />
+        <RegisterForm refCode={searchParams.ref} />
         <AuthDivider />
         <GoogleButton />
       </div>

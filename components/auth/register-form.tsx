@@ -24,11 +24,12 @@ function SubmitButton() {
   );
 }
 
-export function RegisterForm() {
+export function RegisterForm({ refCode }: { refCode?: string }) {
   const [state, formAction] = useFormState(register, null);
 
   return (
     <form action={formAction} className="flex flex-col gap-3">
+      {refCode && <input type="hidden" name="ref" value={refCode} />}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5">
           <label htmlFor="fullName" className="text-sm font-medium text-ink-muted">

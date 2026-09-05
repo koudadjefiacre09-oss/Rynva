@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { CreditCard } from "lucide-react";
+import { CreditCard, UserPlus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ProfileForm } from "@/components/profile/profile-form";
 import { AvatarUploader } from "@/components/profile/avatar-uploader";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getProfile } from "@/lib/profiles/get";
+import { getInvitedCount } from "@/lib/profiles/invites";
 
 export const metadata: Metadata = { title: "Mon profil" };
 
@@ -30,6 +31,7 @@ export default async function ProfilePage() {
   const memberSince = new Intl.DateTimeFormat("fr-FR", { dateStyle: "long" }).format(
     new Date(user.created_at)
   );
+  const invitedCount = await getInvitedCount(user.id);
 
   return (
     <div className="-m-4 min-h-[calc(100vh-4rem)] bg-white px-4 py-10 dark:bg-black lg:-m-6 lg:px-8">
@@ -92,6 +94,21 @@ export default async function ProfilePage() {
                 </p>
               </div>
               <p className="mt-2 text-xs text-zinc-500">Membre depuis le {memberSince}</p>
+            </section>
+
+            <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none sm:p-6">
+              <h2 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                Amis invités
+              </h2>
+              <div className="mt-4 flex items-center gap-2.5">
+                <UserPlus className="h-4 w-4 text-zinc-400" />
+                <p className="text-sm text-zinc-900 dark:text-white">
+                  {invitedCount} inscription{invitedCount > 1 ? "s" : ""} via votre lien
+                </p>
+              </div>
+              <p className="mt-2 text-xs text-zinc-500">
+                Copiez votre lien depuis le bouton &laquo; Invite friends &raquo; en haut de l&rsquo;écran.
+              </p>
             </section>
           </div>
         </div>
