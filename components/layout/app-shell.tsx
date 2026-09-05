@@ -42,7 +42,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-screen overflow-hidden bg-zinc-100 dark:bg-zinc-950">
       <Sidebar user={user} profile={profile} isAdmin={profile?.isAdmin ?? false} />
-      <div className="flex h-full flex-1 flex-col overflow-y-auto">
+      <div className="flex h-full flex-1 flex-col overflow-hidden">
         <Topbar
           user={user}
           profile={profile}
@@ -50,7 +50,9 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
           notifications={notifications}
           unreadNotificationsCount={unreadNotificationsCount}
         />
-        <main className="flex-1 p-4 lg:p-6">{children}</main>
+        <main className="m-3 flex-1 overflow-y-auto rounded-3xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 lg:p-6">
+          {children}
+        </main>
       </div>
     </div>
   );
