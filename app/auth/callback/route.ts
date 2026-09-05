@@ -1,22 +1,40 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
+import type { EmailOtpType } from "@supabase/supabase-js";
 
 /**
- * Handles both the OAuth (Google) PKCE redirect and email links
- * (confirmation, password recovery) — all of them land here with a `code`.
+ * Handles every kind of auth redirect landing back in the app:
+ * - `code` — the OAuth (Google) PKCE redirect, exchanged via exchangeCodeForSession.
+ * - `token_hash` + `type` — email links (confirm signup, password recovery,
+ *   email change), verified via verifyOtp. Supabase's own default email
+ *   templates use `{{ .ConfirmationURL }}`, which resolves to just the
+ *   project's Site URL with a bare `code` query param — no path, so it
+ *   never actually reaches this route. The templates (Authentication ->
+ *   Emails -> Templates in the Supabase dashboard) must be edited to link
+ *   here explicitly with `{{ .TokenHash }}` — see the redirect-to-login
+ *   fallback below for what happens if that's still misconfigured.
  */
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
+  const tokenHash = searchParams.get("token_hash");
+  const type = searchParams.get("type") as EmailOtpType | null;
   const explicitNext = searchParams.get("next");
 
-  if (isSupabaseConfigured && code) {
+  if (isSupabaseConfigured) {
     const supabase = await createClient();
-    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) {
-      const hasName = Boolean(data.user?.user_metadata?.full_name);
-      const target = explicitNext && explicitNext.startsWith("/") ? explicitNext : hasName ? "/dashboard" : "/onboarding";
+
+    const result = code
+      ? await supabase.auth.exchangeCodeForSession(code)
+      : tokenHash && type
+        ? await supabase.auth.verifyOtp({ type, token_hash: tokenHash })
+        : null;
+
+    if (result && !result.error) {
+      const hasName = Boolean(result.data.user?.user_metadata?.full_name);
+      const target =
+        explicitNext && explicitNext.startsWith("/") ? explicitNext : hasName ? "/dashboard" : "/onboarding";
       return NextResponse.redirect(`${origin}${target}`);
     }
   }
