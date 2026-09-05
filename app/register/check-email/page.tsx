@@ -10,8 +10,8 @@ export default function CheckEmailPage() {
       title="Vérifiez votre boîte mail"
       description="Nous vous avons envoyé un lien de confirmation pour activer votre compte RYNVA."
     >
-      <div className="flex flex-col items-center gap-3 py-2 text-center text-sm text-text-secondary">
-        <MailCheck className="h-10 w-10 text-brand-purple" strokeWidth={1.5} />
+      <div className="flex flex-col items-center gap-3 py-2 text-center text-sm text-ink-muted">
+        <MailCheck className="h-10 w-10 text-ink" strokeWidth={1.5} />
         <p>Cliquez sur le lien reçu par email pour terminer votre inscription.</p>
       </div>
     </AuthShell>

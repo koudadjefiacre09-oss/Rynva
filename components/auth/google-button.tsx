@@ -36,7 +36,7 @@ export function GoogleButton() {
       <Button
         type="button"
         variant="secondary"
-        className="w-full"
+        className="w-full rounded-full border-ink/15 bg-white font-semibold text-ink hover:border-ink/30"
         loading={pending}
         onClick={async () => {
           setPending(true);
@@ -52,7 +52,7 @@ export function GoogleButton() {
         Continuer avec Google
       </Button>
       {error && (
-        <p className="rounded border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger">
+        <p className="rounded-xl border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger">
           {error}
         </p>
       )}

@@ -47,7 +47,7 @@ const examples = [
 
 export function ExamplesGallery() {
   return (
-    <section id="exemples" className="relative scroll-mt-24 bg-black px-6 py-24">
+    <section id="exemples" className="relative scroll-mt-24 border-t border-ink/10 bg-cream px-6 py-24">
       <div className="mx-auto max-w-6xl">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -56,10 +56,10 @@ export function ExamplesGallery() {
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
           className="mx-auto max-w-xl text-center"
         >
-          <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
-            Ce que vous pouvez créer
+          <h2 className="text-2xl font-medium tracking-tight text-ink sm:text-3xl">
+            Ce que vous pouvez <span className="font-display-serif italic">créer</span>
           </h2>
-          <p className="mt-3 text-gray-400">
+          <p className="mt-3 text-ink-muted">
             Un aperçu du type de rendu que produisent les outils RYNVA.
           </p>
         </motion.div>
@@ -72,7 +72,7 @@ export function ExamplesGallery() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-10% 0px" }}
               transition={{ duration: 0.5, delay: i * 0.07, ease: [0.16, 1, 0.3, 1] }}
-              className={`group relative overflow-hidden rounded-2xl border border-gray-800 ${ex.span}`}
+              className={`group relative overflow-hidden rounded-2xl border border-ink/10 ${ex.span}`}
             >
               <Image
                 src={ex.src}
@@ -81,14 +81,14 @@ export function ExamplesGallery() {
                 sizes="(max-width: 640px) 50vw, 33vw"
                 className="object-cover transition-transform duration-500 ease-out group-hover:scale-110"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent opacity-80 transition-opacity duration-300 group-hover:opacity-95" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/5 to-transparent opacity-90 transition-opacity duration-300 group-hover:opacity-100" />
               <div className="absolute inset-x-0 bottom-0 flex items-center justify-between p-4">
                 <div>
                   <p className="text-sm font-medium text-white">{ex.title}</p>
-                  <p className="text-xs text-blue-300">{ex.tag}</p>
+                  <p className="text-xs text-white/60">{ex.tag}</p>
                 </div>
               </div>
-              <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/0 transition-all duration-300 group-hover:ring-blue-500/40" />
+              <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/0 transition-all duration-300 group-hover:ring-white/30" />
             </motion.div>
           ))}
         </div>

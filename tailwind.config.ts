@@ -32,9 +32,21 @@ const config: Config = {
         success: "#3DDC84",
         warning: "#F5A623",
         danger: "#FF5C5C",
+        // Landing page palette — warm off-white paper + near-black ink,
+        // matching the reference design (light, editorial, not theme-toggled).
+        cream: {
+          DEFAULT: "#EFEFEA",
+          dark: "#E4E3DA",
+        },
+        ink: {
+          DEFAULT: "#141412",
+          muted: "#6B6B62",
+        },
       },
       fontFamily: {
         sans: ["var(--font-inter)", "Inter", "system-ui", "sans-serif"],
+        display: ["var(--font-display)", "var(--font-inter)", "system-ui", "sans-serif"],
+        "display-serif": ["var(--font-display-serif)", "Georgia", "serif"],
       },
       // 4/8px spacing scale additions beyond Tailwind defaults
       spacing: {

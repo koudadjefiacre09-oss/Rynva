@@ -9,10 +9,10 @@ import { SiteFooter } from "@/components/marketing/site-footer";
 
 export default function LandingPage() {
   return (
-    // "dark" scopes the theme CSS vars to the near-black palette regardless
-    // of the visitor's light/dark preference — this landing page is a fixed
-    // cinematic-dark design, not theme-toggled like the authenticated app.
-    <div className="dark min-h-screen bg-black">
+    // Fixed light editorial design (warm off-white + ink), not theme-toggled
+    // like the authenticated app — same reasoning as the previous dark
+    // version, just a different fixed palette.
+    <div className="min-h-screen bg-cream font-display text-ink">
       <SiteHeader />
       <Hero />
       <StatsSection />

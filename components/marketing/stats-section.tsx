@@ -26,10 +26,7 @@ function StatValue({ value, suffix }: { value: number; suffix: string }) {
   }, [inView, value]);
 
   return (
-    <p
-      ref={ref}
-      className="bg-gradient-to-b from-white to-gray-400 bg-clip-text text-3xl font-bold tracking-tight text-transparent sm:text-4xl"
-    >
+    <p ref={ref} className="text-3xl font-medium tracking-tight text-ink sm:text-4xl">
       {display}
       {suffix}
     </p>
@@ -38,8 +35,8 @@ function StatValue({ value, suffix }: { value: number; suffix: string }) {
 
 export function StatsSection() {
   return (
-    <section className="border-y border-gray-800 bg-black">
-      <div className="mx-auto grid max-w-6xl grid-cols-2 divide-x divide-y divide-gray-800 sm:grid-cols-4 sm:divide-y-0">
+    <section className="border-y border-ink/10 bg-cream">
+      <div className="mx-auto grid max-w-6xl grid-cols-2 divide-x divide-y divide-ink/10 sm:grid-cols-4 sm:divide-y-0">
         {stats.map((stat, i) => (
           <motion.div
             key={stat.label}
@@ -50,7 +47,7 @@ export function StatsSection() {
             className="flex flex-col items-center gap-1.5 px-6 py-12 text-center"
           >
             <StatValue value={stat.value} suffix={stat.suffix} />
-            <p className="text-sm text-gray-500">{stat.label}</p>
+            <p className="text-sm text-ink-muted">{stat.label}</p>
           </motion.div>
         ))}
       </div>

@@ -11,7 +11,7 @@ export default function ResetPasswordPage() {
       title="Mot de passe oublié"
       description="Indiquez votre email, nous vous envoyons un lien de réinitialisation."
       footer={
-        <Link href="/login" className="font-medium text-brand-purple hover:underline">
+        <Link href="/login" className="font-medium text-ink underline underline-offset-2">
           Retour à la connexion
         </Link>
       }
