@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient, isAdminConfigured } from "@/lib/supabase/admin";
+import { NOTIFY } from "@/lib/notifications/create";
 
 export type UploadAvatarResult = { error?: string; url?: string };
 
@@ -70,6 +71,7 @@ export async function uploadAvatar(formData: FormData): Promise<UploadAvatarResu
   }
 
   revalidatePath("/", "layout");
+  await NOTIFY.avatarUpdated(user.id);
   // Cache-bust: the path is stable across re-uploads (upsert), so the URL
   // alone wouldn't change and the browser/CDN could keep showing the old image.
   return { url: `${publicUrlData.publicUrl}?v=${Date.now()}` };

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { resolveUser } from "@/lib/ai/route-helpers";
 import { createCharacter } from "@/lib/characters/save";
+import { NOTIFY } from "@/lib/notifications/create";
 
 const bodySchema = z.object({
   name: z.string().min(1, "Donnez un nom au personnage.").max(60),
@@ -42,5 +43,6 @@ export async function POST(request: Request) {
     );
   }
 
+  await NOTIFY.characterCreated(userId, parsed.data.name);
   return NextResponse.json(created);
 }

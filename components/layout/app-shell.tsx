@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getProfile, type Profile } from "@/lib/profiles/get";
 import { listGenerations, type GenerationWithUrl } from "@/lib/generations/list";
+import { listNotifications } from "@/lib/notifications/list";
+import type { NotificationRow } from "@/lib/notifications/types";
 
 /**
  * Shared authenticated shell: persistent sidebar + topbar around `children`.
@@ -14,6 +16,8 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
   let user: { id: string; name: string; email: string } | null = null;
   let profile: Profile | null = null;
   let recentGenerations: GenerationWithUrl[] = [];
+  let notifications: NotificationRow[] = [];
+  let unreadNotificationsCount = 0;
 
   if (isSupabaseConfigured) {
     const supabase = await createClient();
@@ -29,6 +33,9 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
       profile = await getProfile(authUser.id);
       // Feeds the ⌘K command palette's "recent projects" results.
       recentGenerations = await listGenerations(authUser.id, 20);
+      const notifs = await listNotifications(authUser.id);
+      notifications = notifs.notifications;
+      unreadNotificationsCount = notifs.unreadCount;
     }
   }
 
@@ -36,7 +43,13 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
     <div className="flex h-screen overflow-hidden bg-white dark:bg-black">
       <Sidebar isAdmin={profile?.isAdmin ?? false} />
       <div className="flex h-full flex-1 flex-col overflow-y-auto">
-        <Topbar user={user} profile={profile} recentGenerations={recentGenerations} />
+        <Topbar
+          user={user}
+          profile={profile}
+          recentGenerations={recentGenerations}
+          notifications={notifications}
+          unreadNotificationsCount={unreadNotificationsCount}
+        />
         <main className="flex-1 p-4 lg:p-6">{children}</main>
       </div>
     </div>

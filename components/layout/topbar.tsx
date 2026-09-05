@@ -1,13 +1,15 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Bell, Menu, UserPlus } from "lucide-react";
+import { Menu, UserPlus } from "lucide-react";
 import { ThemeToggleCompact } from "@/components/theme/theme-toggle";
 import { UserMenu, type UserMenuUser } from "@/components/layout/user-menu";
+import { NotificationsBell } from "@/components/layout/notifications-bell";
 import { CommandPalette } from "@/components/search/command-palette";
 import { notifySuccess } from "@/lib/toast";
 import type { Profile } from "@/lib/profiles/get";
 import type { GenerationWithUrl } from "@/lib/generations/list";
+import type { NotificationRow } from "@/lib/notifications/types";
 
 const SECTION_TITLES: { prefix: string; title: string }[] = [
   { prefix: "/dashboard", title: "Dashboard" },
@@ -40,10 +42,14 @@ export function Topbar({
   user = null,
   profile = null,
   recentGenerations = [],
+  notifications = [],
+  unreadNotificationsCount = 0,
 }: {
   user?: UserMenuUser | null;
   profile?: Profile | null;
   recentGenerations?: GenerationWithUrl[];
+  notifications?: NotificationRow[];
+  unreadNotificationsCount?: number;
 }) {
   const pathname = usePathname();
   const creditsLabel = new Intl.NumberFormat("fr-FR").format(profile?.credits ?? 100);
@@ -96,14 +102,13 @@ export function Topbar({
 
         <ThemeToggleCompact />
 
-        <button
-          type="button"
-          aria-label="Notifications"
-          className="relative flex h-10 w-10 items-center justify-center rounded-lg text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-white"
-        >
-          <Bell className="h-4.5 w-4.5" />
-          <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-brand-accent" />
-        </button>
+        {user && (
+          <NotificationsBell
+            userId={user.id}
+            initialNotifications={notifications}
+            initialUnreadCount={unreadNotificationsCount}
+          />
+        )}
 
         {user ? (
           <UserMenu user={user} profile={profile} />

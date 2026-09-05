@@ -15,6 +15,8 @@ import {
   updatePasswordSchema,
 } from "@/lib/validations/auth";
 import { getCountryFromRequest } from "@/lib/geo";
+import { NOTIFY } from "@/lib/notifications/create";
+import { sendWelcomeEmail } from "@/lib/email/send-welcome-email";
 
 export type AuthActionState = {
   error?: string;
@@ -93,6 +95,8 @@ export async function register(
   });
   if (error) return { error: translateAuthError(error.message) };
 
+  await sendWelcomeEmail(parsed.data.email, parsed.data.fullName);
+
   // If email confirmation is disabled on the Supabase project, signUp
   // already returns a session — skip straight to the dashboard.
   if (data.session) redirect("/dashboard");
@@ -150,10 +154,12 @@ export async function updateProfile(
   if (!parsed.success) return { fieldErrors: fieldErrorsFromZod(parsed.error) };
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.updateUser({
+  const { data, error } = await supabase.auth.updateUser({
     data: { full_name: parsed.data.fullName },
   });
   if (error) return { error: translateAuthError(error.message) };
+
+  if (data.user) await NOTIFY.profileUpdated(data.user.id);
 
   // The name is also read by the topbar/sidebar/dashboard greeting (server
   // components in the layout tree) — bust their cache so it shows up there
@@ -197,8 +203,10 @@ export async function updatePassword(
   if (!parsed.success) return { fieldErrors: fieldErrorsFromZod(parsed.error) };
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.updateUser({ password: parsed.data.password });
+  const { data, error } = await supabase.auth.updateUser({ password: parsed.data.password });
   if (error) return { error: translateAuthError(error.message) };
+
+  if (data.user) await NOTIFY.passwordUpdated(data.user.id);
 
   redirect("/dashboard");
 }

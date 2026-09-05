@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { notifyGeneration } from "@/lib/notifications/create";
 
 export type ActivityAction =
   | "image"
@@ -77,6 +78,10 @@ export async function logActivity(
     if (insertError) {
       console.error("[logActivity] insert into activity_logs failed:", insertError.message);
     }
+
+    // Bell notification (topbar) — separate table/concern from activity_logs
+    // above, so a failure in one never blocks the other.
+    await notifyGeneration(userId, action, status);
 
     if (status === "success" && tokensUsed > 0) {
       const { data: profile, error: fetchError } = await admin
