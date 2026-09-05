@@ -53,7 +53,7 @@ export default async function SettingsPage() {
         <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none sm:p-6">
           <h2 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Session</h2>
           <p className="mt-1 text-xs text-zinc-500">
-            Vous déconnecte de cet appareil — vous pourrez vous reconnecter à tout moment.
+            Vous déconnecte de cet appareil. Vous pourrez vous reconnecter à tout moment.
           </p>
           <form action={logout} className="mt-4">
             <button

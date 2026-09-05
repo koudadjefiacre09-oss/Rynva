@@ -79,7 +79,7 @@ export function ToolsTeaser() {
             Un studio, <span className="font-display-serif italic">six</span> outils IA
           </h2>
           <p className="mt-3 text-ink-muted">
-            Survolez un outil pour voir ce qu&apos;il fait — du premier brouillon au rendu final.
+            Survolez un outil pour voir ce qu&apos;il fait, du premier brouillon au rendu final.
           </p>
         </motion.div>
 

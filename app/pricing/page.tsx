@@ -53,8 +53,8 @@ export default function PricingPage() {
             Des tarifs simples, <span className="text-gradient-brand">basés sur des crédits</span>
           </h1>
           <p className="mt-6 text-base text-text-secondary sm:text-lg">
-            Commencez gratuitement. Les plans payants arrivent avec les abonnements Stripe (Phase 5)
-            — en attendant, le plan Free est pleinement fonctionnel.
+            Commencez gratuitement. Les plans payants arrivent avec les abonnements Stripe (Phase 5) ;
+            en attendant, le plan Free est pleinement fonctionnel.
           </p>
         </div>
       </section>

@@ -13,7 +13,7 @@ export function createAdminClient() {
 
   if (!url || !serviceRoleKey) {
     throw new Error(
-      "SUPABASE_SERVICE_ROLE_KEY manquante — ajoutez-la dans .env.local (Project Settings → API dans Supabase) pour activer l'espace admin."
+      "SUPABASE_SERVICE_ROLE_KEY manquante. Ajoutez-la dans .env.local (Project Settings → API dans Supabase) pour activer l'espace admin."
     );
   }
 

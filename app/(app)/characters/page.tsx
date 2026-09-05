@@ -23,7 +23,7 @@ export default async function CharactersPage() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">Personnages</h1>
         <p className="mt-1 text-sm text-zinc-500">
-          Créez des personnages réutilisables — leur visage reste cohérent d&apos;une scène à
+          Créez des personnages réutilisables : leur visage reste cohérent d&apos;une scène à
           l&apos;autre dans <span className="text-zinc-900">AI Scene</span>.
         </p>
       </div>

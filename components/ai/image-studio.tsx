@@ -76,7 +76,7 @@ export function ImageStudio() {
             AI Image
           </h1>
           <p className="mt-1.5 text-sm text-zinc-500">
-            Décrivez l&rsquo;image à générer — sujet, style, ambiance, lumière.
+            Décrivez l&rsquo;image à générer : sujet, style, ambiance, lumière.
           </p>
         </div>
 
@@ -85,7 +85,7 @@ export function ImageStudio() {
             <button
               type="button"
               disabled
-              title="Import d'image — bientôt disponible"
+              title="Import d'image, bientôt disponible"
               className="mb-1.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-zinc-400 transition-colors hover:bg-zinc-200 hover:text-zinc-600 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-zinc-400 dark:text-zinc-500 dark:hover:bg-zinc-800 dark:hover:text-zinc-300 dark:disabled:hover:text-zinc-500"
             >
               <Paperclip className="h-4 w-4" />

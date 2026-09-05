@@ -80,9 +80,9 @@ export function Hero() {
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           className="text-5xl font-medium leading-[0.98] tracking-tight text-ink sm:text-6xl md:text-7xl"
         >
-          Générez des visuels.
+          Image, vidéo, design, audio.
           <br />
-          Pensés <span className="font-display-serif italic text-ink">pour vos idées</span>
+          Un seul studio <span className="font-display-serif italic text-ink">propulsé par l&apos;IA</span>
         </motion.h1>
 
         <motion.p

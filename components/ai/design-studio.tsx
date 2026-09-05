@@ -14,7 +14,7 @@ export function DesignStudio() {
   return (
     <GenerationStudio<DesignResult>
       title="AI Design"
-      description="Décrivez le design à créer — message, style visuel, palette."
+      description="Décrivez le design à créer : message, style visuel, palette."
       endpoint="/api/ai/design"
       successMessage="Votre design est prêt !"
       placeholder="Ex : une affiche de lancement produit, style minimaliste, dégradé violet/bleu"

@@ -149,7 +149,7 @@ export function PhotoStudio() {
               <p className="text-sm font-medium text-zinc-900 dark:text-white">
                 Cliquez pour importer une photo
               </p>
-              <p className="text-xs text-zinc-400 dark:text-zinc-500">PNG, JPG ou WebP — 10 Mo max</p>
+              <p className="text-xs text-zinc-400 dark:text-zinc-500">PNG, JPG ou WebP (10 Mo max)</p>
             </button>
           ) : (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

@@ -29,7 +29,7 @@ const instrumentSerif = Instrument_Serif({
 
 export const metadata: Metadata = {
   title: {
-    default: "RYNVA — Create. Edit. Innovate.",
+    default: "RYNVA : créez, éditez et innovez avec l'IA",
     template: "%s · RYNVA",
   },
   description:
@@ -38,14 +38,14 @@ export const metadata: Metadata = {
     icon: "/logo.png",
   },
   openGraph: {
-    title: "RYNVA — Create. Edit. Innovate.",
+    title: "RYNVA : créez, éditez et innovez avec l'IA",
     description:
       "Créez, éditez et gérez vos contenus créatifs avec l'IA : image, vidéo, design, audio.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "RYNVA — Create. Edit. Innovate.",
+    title: "RYNVA : créez, éditez et innovez avec l'IA",
   },
 };
 

@@ -290,7 +290,7 @@ export function PremiumScreen() {
             <p className="text-sm font-medium text-zinc-900 dark:text-white">
               {method === "apple" ? "Apple Pay" : "Google Pay"}
             </p>
-            <p className="mt-1 text-xs text-zinc-500">Simulation — cliquez sur payer pour continuer</p>
+            <p className="mt-1 text-xs text-zinc-500">Simulation, cliquez sur payer pour continuer</p>
           </div>
         )}
 
@@ -444,7 +444,7 @@ export function PremiumScreen() {
           className="mx-auto inline-flex h-12 w-full max-w-sm items-center justify-center gap-2 rounded-full bg-zinc-900 text-sm font-medium text-white transition-colors hover:bg-black dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
         >
           <Sparkles className="h-4 w-4" />
-          Passer à Pro — ${proPrice}/mois
+          Passer à Pro pour ${proPrice}/mois
         </button>
       )}
       {selectedPlan === "enterprise" && (

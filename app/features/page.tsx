@@ -87,7 +87,7 @@ export default function FeaturesPage() {
           </h1>
           <p className="mt-6 text-base text-text-secondary sm:text-lg">
             Cinq outils de génération et une plateforme pensée pour organiser, retrouver et
-            itérer sur vos créations — sans jamais changer d&apos;onglet.
+            itérer sur vos créations, sans jamais changer d&apos;onglet.
           </p>
         </div>
       </section>

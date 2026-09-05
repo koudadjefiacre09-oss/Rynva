@@ -109,7 +109,7 @@ export function AvatarUploader({
         {error ? (
           <p className="text-xs text-red-600 dark:text-red-400">{error}</p>
         ) : (
-          <p className="text-xs text-zinc-500">JPG, PNG — 5 Mo max</p>
+          <p className="text-xs text-zinc-500">JPG, PNG (5 Mo max)</p>
         )}
       </div>
     </div>

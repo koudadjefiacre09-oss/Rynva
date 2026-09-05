@@ -146,7 +146,7 @@ export function PricingTeaser() {
         </div>
 
         <p className="mt-8 text-center text-xs text-ink-muted">
-          Les plans Pro et Team arrivent avec les abonnements Stripe — le plan Free est pleinement fonctionnel dès maintenant.
+          Les plans Pro et Team arrivent avec les abonnements Stripe. Le plan Free est pleinement fonctionnel dès maintenant.
         </p>
       </div>
     </section>

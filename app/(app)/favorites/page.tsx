@@ -25,7 +25,7 @@ export default async function FavoritesPage() {
           Favoris
         </h1>
         <p className="mt-1 text-sm text-zinc-500">
-          Vos créations marquées d&rsquo;une étoile — images, vidéos, designs et audios.
+          Vos créations marquées d&rsquo;une étoile : images, vidéos, designs et audios.
         </p>
       </div>
 

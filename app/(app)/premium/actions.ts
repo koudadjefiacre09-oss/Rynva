@@ -31,7 +31,7 @@ export async function upgradeToPro(): Promise<UpgradeResult> {
   if (!isAdminConfigured) {
     return {
       error:
-        "SUPABASE_SERVICE_ROLE_KEY manquante dans .env.local — nécessaire pour créditer le compte en toute sécurité.",
+        "SUPABASE_SERVICE_ROLE_KEY manquante dans .env.local, nécessaire pour créditer le compte en toute sécurité.",
     };
   }
 
@@ -43,7 +43,7 @@ export async function upgradeToPro(): Promise<UpgradeResult> {
     .eq("id", user.id)
     .single();
   if (fetchError || !profile) {
-    return { error: "Profil introuvable — la migration 0004 a-t-elle été exécutée ?" };
+    return { error: "Profil introuvable. La migration 0004 a-t-elle été exécutée ?" };
   }
 
   const newCredits = (profile.credits ?? 0) + PRO_CREDITS_BONUS;

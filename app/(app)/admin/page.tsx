@@ -52,7 +52,7 @@ export default async function AdminPage() {
     return (
       <EmptyState
         title="Clé service role manquante"
-        message="Ajoutez SUPABASE_SERVICE_ROLE_KEY dans .env.local (Supabase → Project Settings → API → service_role) puis relancez le serveur — l'espace admin lit tous les comptes avec cette clé, pas la clé publique."
+        message="Ajoutez SUPABASE_SERVICE_ROLE_KEY dans .env.local (Supabase → Project Settings → API → service_role) puis relancez le serveur. L'espace admin lit tous les comptes avec cette clé, pas la clé publique."
       />
     );
   }
@@ -94,7 +94,7 @@ export default async function AdminPage() {
       return {
         id: u.id,
         name: (u.user_metadata?.full_name as string | undefined) || u.email || "Utilisateur",
-        email: u.email ?? "—",
+        email: u.email ?? "Non renseigné",
         createdAt: u.created_at,
         country: countryById.get(u.id) ?? null,
         banned: Boolean(u.banned_until && new Date(u.banned_until) > new Date()),
@@ -114,7 +114,7 @@ export default async function AdminPage() {
           Administration
         </h1>
         <p className="mt-1 text-sm text-zinc-500">
-          {rows.length} compte{rows.length > 1 ? "s" : ""} — activité et consommation par utilisateur.
+          {rows.length} compte{rows.length > 1 ? "s" : ""}, activité et consommation par utilisateur.
         </p>
       </div>
 
@@ -204,10 +204,10 @@ export default async function AdminPage() {
 
       <p className="text-[11px] text-zinc-400 dark:text-zinc-600">
         Les tokens consommés sont un coût fixe par type d&rsquo;action (voir
-        lib/activity/log.ts), pas une facturation réelle des fournisseurs IA — chaque
+        lib/activity/log.ts), pas une facturation réelle des fournisseurs IA. Chaque
         événement est bien réel et enregistré individuellement, seul son coût unitaire est
         estimé. Le pays n&rsquo;est renseigné que si l&rsquo;hébergement transmet une
-        géolocalisation IP — sinon « Inconnu ».
+        géolocalisation IP, sinon « Inconnu ».
       </p>
     </div>
   );

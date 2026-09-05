@@ -227,7 +227,7 @@ export function CreateCharacterForm({ onCreated }: { onCreated: (character: Char
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Description (optionnel) — utile pour vous souvenir de son style"
+              placeholder="Description (optionnel), utile pour vous souvenir de son style"
               rows={2}
               maxLength={500}
               className="w-full resize-none rounded border border-border bg-surface-secondary px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus-visible:outline-none focus-visible:border-brand-purple"

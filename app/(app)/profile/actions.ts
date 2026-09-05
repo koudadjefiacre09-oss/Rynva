@@ -39,7 +39,7 @@ export async function uploadAvatar(formData: FormData): Promise<UploadAvatarResu
   if (!isAdminConfigured) {
     return {
       error:
-        "SUPABASE_SERVICE_ROLE_KEY manquante dans .env.local — nécessaire pour enregistrer la photo.",
+        "SUPABASE_SERVICE_ROLE_KEY manquante dans .env.local, nécessaire pour enregistrer la photo.",
     };
   }
 

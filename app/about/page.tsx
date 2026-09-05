@@ -44,8 +44,8 @@ export default function AboutPage() {
           </h1>
           <p className="mt-6 text-base text-text-secondary sm:text-lg">
             RYNVA est né d&apos;un constat simple : créer avec l&apos;IA aujourd&apos;hui veut dire
-            multiplier les outils, les onglets et les abonnements. RYNVA réunit l&apos;essentiel —
-            image, vidéo, design, audio et chat — dans un seul studio.
+            multiplier les outils, les onglets et les abonnements. RYNVA réunit l&apos;essentiel :
+            image, vidéo, design, audio et chat, dans un seul studio.
           </p>
         </div>
       </section>
@@ -91,7 +91,7 @@ export default function AboutPage() {
           Envie de créer avec nous ?
         </h2>
         <p className="mx-auto mt-3 max-w-md text-text-secondary">
-          RYNVA est en construction active — le plan Free est déjà ouvert à tous.
+          RYNVA est en construction active. Le plan Free est déjà ouvert à tous.
         </p>
         <Link href="/register" className="mt-8 inline-block">
           <Button size="lg">Créer un compte</Button>

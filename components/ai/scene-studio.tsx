@@ -104,7 +104,7 @@ export function SceneStudio({ characters }: { characters: CharacterWithUrl[] }) 
           AI Scene
         </h1>
         <p className="mt-1 text-sm text-zinc-500">
-          Sélectionnez 2 à 3 personnages, puis décrivez la scène — leur visage reste cohérent.
+          Sélectionnez 2 à 3 personnages, puis décrivez la scène : leur visage reste cohérent.
         </p>
       </div>
 

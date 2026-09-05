@@ -33,7 +33,7 @@ export function SiteFooter() {
             <span className="text-base font-semibold tracking-tight">RYNVA</span>
           </Link>
           <p className="mt-3 max-w-[220px] text-sm text-ink-muted">
-            Créez, éditez et innovez avec l&apos;IA — dans un seul studio.
+            Créez, éditez et innovez avec l&apos;IA, dans un seul studio.
           </p>
         </div>
 
