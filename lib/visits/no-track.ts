@@ -1,27 +1,18 @@
-"use server";
-
 import { cookies } from "next/headers";
 
-const COOKIE_NAME = "rynva_no_track";
-const FIVE_YEARS = 60 * 60 * 24 * 365 * 5;
-
-/** Whether this browser has opted out of visit tracking (see the toggle on /admin). */
-export async function isNoTrackEnabled(): Promise<boolean> {
-  const store = await cookies();
-  return store.get(COOKIE_NAME)?.value === "1";
-}
+export const NO_TRACK_COOKIE = "rynva_no_track";
 
 /**
- * Sets or clears the opt-out cookie for the current browser. Deliberately a
- * long-lived cookie rather than tied to the admin's account: it needs to
- * also cover them browsing the public marketing pages logged out (a fresh
- * tab, incognito testing, etc.), not just their authenticated app session.
+ * Whether this browser has opted out of visit tracking (see the toggle on
+ * /admin, and the mutation in lib/visits/set-no-track.ts). Plain
+ * server-only function, not a Server Action — called directly during
+ * /admin's render. Deliberately kept out of any file a Client Component
+ * imports: next/headers can't be bundled client-side, and mixing this with
+ * the actual "use server" mutation in one module broke exactly that way in
+ * production (a plain read got wrapped as an action too, and crashed when
+ * called straight from render instead of dispatched as one).
  */
-export async function setNoTrack(enabled: boolean): Promise<void> {
+export async function isNoTrackEnabled(): Promise<boolean> {
   const store = await cookies();
-  if (enabled) {
-    store.set(COOKIE_NAME, "1", { maxAge: FIVE_YEARS, path: "/" });
-  } else {
-    store.delete(COOKIE_NAME);
-  }
+  return store.get(NO_TRACK_COOKIE)?.value === "1";
 }

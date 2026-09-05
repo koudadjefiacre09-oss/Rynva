@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { setNoTrack } from "@/lib/visits/no-track";
+import { setNoTrack } from "@/lib/visits/set-no-track";
 
 /**
  * "Ne pas compter mes visites" — sets/clears the rynva_no_track cookie (see
