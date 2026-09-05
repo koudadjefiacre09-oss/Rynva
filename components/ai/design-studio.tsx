@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Sparkles } from "lucide-react";
+import { Palette, Sparkles } from "lucide-react";
 import { GenerationStudio } from "@/components/ai/generation-studio";
 
 interface DesignResult {
@@ -13,11 +13,13 @@ interface DesignResult {
 export function DesignStudio() {
   return (
     <GenerationStudio<DesignResult>
-      title="AI Design"
+      title="Générez votre design"
       description="Décrivez le design à créer : message, style visuel, palette."
       endpoint="/api/ai/design"
       successMessage="Votre design est prêt !"
       placeholder="Ex : une affiche de lancement produit, style minimaliste, dégradé violet/bleu"
+      emptyIcon={Palette}
+      emptyLabel="Votre design apparaîtra ici une fois généré."
       fields={[
         {
           name: "format",
@@ -32,7 +34,7 @@ export function DesignStudio() {
       ]}
       renderResult={(result) => (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={result.url} alt={result.prompt} className="w-full rounded-md" />
+        <img src={result.url} alt={result.prompt} className="w-full" />
       )}
       renderExtraActions={(result) => (
         <Link

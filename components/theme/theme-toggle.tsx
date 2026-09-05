@@ -1,13 +1,13 @@
 "use client";
 
-import { Sun, Moon, Monitor } from "lucide-react";
+import { Sun, Moon, SunMoon } from "lucide-react";
 import { useTheme, type Theme } from "@/components/theme/theme-provider";
 import { cn } from "@/lib/utils";
 
 const OPTIONS: { value: Theme; icon: typeof Sun; label: string }[] = [
   { value: "light", icon: Sun, label: "Clair" },
   { value: "dark", icon: Moon, label: "Sombre" },
-  { value: "system", icon: Monitor, label: "Système" },
+  { value: "system", icon: SunMoon, label: "Système" },
 ];
 
 /** Full 3-way light/dark/system control — used on the Settings page. */
@@ -50,7 +50,7 @@ export function ThemeToggle({ className }: { className?: string }) {
 }
 
 const CYCLE: Record<Theme, Theme> = { light: "dark", dark: "system", system: "light" };
-const CYCLE_ICON: Record<Theme, typeof Sun> = { light: Sun, dark: Moon, system: Monitor };
+const CYCLE_ICON: Record<Theme, typeof Sun> = { light: Sun, dark: Moon, system: SunMoon };
 const CYCLE_LABEL: Record<Theme, string> = { light: "Clair", dark: "Sombre", system: "Système" };
 
 /** Compact single-icon cycle button — used in the topbar. */

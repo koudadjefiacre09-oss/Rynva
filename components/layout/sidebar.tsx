@@ -77,7 +77,7 @@ export function Sidebar({
         isOpen ? "lg:w-64" : "lg:w-16"
       )}
     >
-      <div className={cn("flex h-16 items-center", isOpen ? "gap-2.5 px-5" : "justify-center px-0")}>
+      <div className={cn("flex items-center pb-2 pt-6", isOpen ? "gap-2.5 px-5" : "justify-center px-0")}>
         <Image src="/logo-icon.png" alt="RYNVA" width={30} height={30} className="shrink-0 rounded-md" />
       </div>
 

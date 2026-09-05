@@ -52,7 +52,7 @@ export function Topbar({
   unreadNotificationsCount?: number;
 }) {
   const pathname = usePathname();
-  const creditsLabel = new Intl.NumberFormat("fr-FR").format(profile?.credits ?? 100);
+  const tokensLabel = new Intl.NumberFormat("fr-FR").format(profile?.tokensConsumed ?? 0);
 
   function handleInvite() {
     if (!user) return;
@@ -96,8 +96,11 @@ export function Topbar({
           Invite friends
         </button>
 
-        <span className="hidden items-center gap-1.5 rounded-full bg-gradient-brand px-2.5 py-1 text-xs font-medium text-white sm:inline-flex">
-          {creditsLabel} crédits
+        <span
+          title="Crédits consommés au total"
+          className="hidden items-center gap-1.5 rounded-full bg-gradient-brand px-2.5 py-1 text-xs font-medium text-white sm:inline-flex"
+        >
+          {tokensLabel} crédits utilisés
         </span>
 
         <ThemeToggleCompact />

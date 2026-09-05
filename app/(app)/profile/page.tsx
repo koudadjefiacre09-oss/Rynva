@@ -69,7 +69,7 @@ export default async function ProfilePage() {
           <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none sm:p-6">
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                Solde de crédits
+                Crédits utilisés
               </h2>
               <Badge variant="brand">
                 <Sparkles className="h-3 w-3" />
@@ -77,7 +77,7 @@ export default async function ProfilePage() {
               </Badge>
             </div>
             <p className="mt-4 text-3xl font-semibold tracking-tight text-zinc-900 dark:text-white">
-              {profile.credits}
+              {profile.tokensConsumed}
               <span className="ml-1.5 text-sm font-normal text-zinc-500">crédits</span>
             </p>
           </section>
