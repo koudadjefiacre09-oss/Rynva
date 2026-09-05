@@ -8,6 +8,7 @@ import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { listGenerations, type GenerationWithUrl } from "@/lib/generations/list";
 import { AI_TOOLS } from "@/lib/ai-tools";
 import { NAV_ACCENT, DEFAULT_NAV_ACCENT } from "@/lib/nav-colors";
+import { getGreeting } from "@/lib/greeting";
 import { cn } from "@/lib/utils";
 
 export default async function DashboardPage() {
@@ -32,7 +33,7 @@ export default async function DashboardPage() {
       {/* Hero: greeting + big search bar + tool shortcuts — Magnific-style launcher. */}
       <div className="mx-auto flex max-w-3xl flex-col items-center gap-7 text-center">
         <h1 className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-white">
-          Bonjour{firstName ? `, ${firstName}` : ""}, commencez à créer !
+          {getGreeting(firstName)}
         </h1>
 
         <div className="w-full max-w-xl">
