@@ -1,4 +1,5 @@
 import type { VisitStats } from "@/lib/visits/stats";
+import { NoTrackToggle } from "@/components/admin/no-track-toggle";
 
 const numberFormatter = new Intl.NumberFormat("fr-FR");
 const dayFormatter = new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "2-digit" });
@@ -22,13 +23,22 @@ function StatTile({ label, value }: { label: string; value: number }) {
  * dataviz skill's color-formula) and it matches the rest of /admin, which
  * has no colored charts elsewhere.
  */
-export function TrafficSection({ stats }: { stats: VisitStats }) {
+export function TrafficSection({
+  stats,
+  noTrackEnabled,
+}: {
+  stats: VisitStats;
+  noTrackEnabled: boolean;
+}) {
   const maxDay = Math.max(1, ...stats.byDay.map((d) => d.count));
   const maxCountry = Math.max(1, ...stats.byCountry.map((c) => c.count));
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Trafic du site</h2>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Trafic du site</h2>
+        <NoTrackToggle initialEnabled={noTrackEnabled} />
+      </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatTile label="Aujourd'hui" value={stats.today} />

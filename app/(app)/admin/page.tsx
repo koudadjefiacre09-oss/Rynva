@@ -3,9 +3,11 @@ import { AlertTriangle } from "lucide-react";
 import { requireAdmin } from "@/lib/admin/auth";
 import { createAdminClient, isAdminConfigured } from "@/lib/supabase/admin";
 import { UserRowActions } from "@/components/admin/user-row-actions";
+import { initialsOf } from "@/components/layout/user-menu";
 import { TrafficSection } from "@/components/admin/traffic-section";
 import { ACTION_LABEL, type ActivityAction } from "@/lib/activity/log";
 import { getVisitStats } from "@/lib/visits/stats";
+import { isNoTrackEnabled } from "@/lib/visits/no-track";
 
 export const metadata: Metadata = { title: "Admin" };
 
@@ -61,17 +63,23 @@ export default async function AdminPage() {
 
   const supabaseAdmin = createAdminClient();
 
-  const [{ data: usersResult, error: usersError }, { data: profiles }, { data: activity }, visitStats] =
-    await Promise.all([
-      supabaseAdmin.auth.admin.listUsers({ perPage: 200 }),
-      supabaseAdmin.from("profiles").select("id, country"),
-      supabaseAdmin
-        .from("activity_logs")
-        .select("user_id, action_type, status, tokens_used, error_message, created_at")
-        .order("created_at", { ascending: false })
-        .limit(2000),
-      getVisitStats(14),
-    ]);
+  const [
+    { data: usersResult, error: usersError },
+    { data: profiles },
+    { data: activity },
+    visitStats,
+    noTrackEnabled,
+  ] = await Promise.all([
+    supabaseAdmin.auth.admin.listUsers({ perPage: 200 }),
+    supabaseAdmin.from("profiles").select("id, country"),
+    supabaseAdmin
+      .from("activity_logs")
+      .select("user_id, action_type, status, tokens_used, error_message, created_at")
+      .order("created_at", { ascending: false })
+      .limit(2000),
+    getVisitStats(14),
+    isNoTrackEnabled(),
+  ]);
 
   if (usersError || !usersResult) {
     return (
@@ -121,25 +129,25 @@ export default async function AdminPage() {
         </p>
       </div>
 
-      <TrafficSection stats={visitStats} />
+      <TrafficSection stats={visitStats} noTrackEnabled={noTrackEnabled} />
 
-      <div className="overflow-x-auto rounded-2xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="thin-scrollbar max-h-[640px] overflow-auto rounded-2xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
         <table className="w-full min-w-[900px] border-collapse text-left text-sm">
           <thead>
             <tr className="border-b border-zinc-200 dark:border-zinc-800">
-              <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-zinc-500">
+              <th className="sticky top-0 bg-white px-4 py-3 text-xs font-medium uppercase tracking-wide text-zinc-500 dark:bg-zinc-900">
                 Utilisateur
               </th>
-              <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-zinc-500">
+              <th className="sticky top-0 bg-white px-4 py-3 text-xs font-medium uppercase tracking-wide text-zinc-500 dark:bg-zinc-900">
                 Pays
               </th>
-              <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-zinc-500">
+              <th className="sticky top-0 bg-white px-4 py-3 text-xs font-medium uppercase tracking-wide text-zinc-500 dark:bg-zinc-900">
                 Dernière activité
               </th>
-              <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-zinc-500">
+              <th className="sticky top-0 bg-white px-4 py-3 text-xs font-medium uppercase tracking-wide text-zinc-500 dark:bg-zinc-900">
                 Consommation
               </th>
-              <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wide text-zinc-500">
+              <th className="sticky top-0 bg-white px-4 py-3 text-right text-xs font-medium uppercase tracking-wide text-zinc-500 dark:bg-zinc-900">
                 Actions
               </th>
             </tr>
@@ -148,26 +156,31 @@ export default async function AdminPage() {
             {rows.map((row) => (
               <tr
                 key={row.id}
-                className="border-b border-zinc-100 last:border-0 dark:border-zinc-800/60"
+                className="border-b border-zinc-100 transition-colors last:border-0 hover:bg-zinc-50 dark:border-zinc-800/60 dark:hover:bg-zinc-800/40"
               >
-                <td className="px-4 py-3 align-top">
-                  <div className="flex flex-col">
-                    <span className="font-medium text-zinc-900 dark:text-white">{row.name}</span>
-                    <span className="text-xs text-zinc-500">{row.email}</span>
-                    <span className="mt-0.5 text-[11px] text-zinc-400 dark:text-zinc-500">
-                      Inscrit le {dateFormatter.format(new Date(row.createdAt))}
+                <td className="px-4 py-3.5 align-top">
+                  <div className="flex items-start gap-3">
+                    <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-brand text-xs font-semibold text-white">
+                      {initialsOf(row.name)}
                     </span>
-                    {row.banned && (
-                      <span className="mt-1 inline-flex w-fit items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-700 dark:bg-amber-950/50 dark:text-amber-400">
-                        Suspendu
+                    <div className="flex flex-col">
+                      <span className="font-medium text-zinc-900 dark:text-white">{row.name}</span>
+                      <span className="text-xs text-zinc-500">{row.email}</span>
+                      <span className="mt-0.5 text-[11px] text-zinc-400 dark:text-zinc-500">
+                        Inscrit le {dateFormatter.format(new Date(row.createdAt))}
                       </span>
-                    )}
+                      {row.banned && (
+                        <span className="mt-1 inline-flex w-fit items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-700 dark:bg-amber-950/50 dark:text-amber-400">
+                          Suspendu
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </td>
-                <td className="px-4 py-3 align-top text-zinc-700 dark:text-zinc-300">
+                <td className="px-4 py-3.5 align-top text-zinc-700 dark:text-zinc-300">
                   {row.country ?? <span className="text-zinc-400 dark:text-zinc-600">Inconnu</span>}
                 </td>
-                <td className="px-4 py-3 align-top">
+                <td className="px-4 py-3.5 align-top">
                   {row.lastAction ? (
                     <div className="flex flex-col gap-1">
                       <span className="text-zinc-700 dark:text-zinc-300">
@@ -189,7 +202,7 @@ export default async function AdminPage() {
                     <span className="text-xs text-zinc-400 dark:text-zinc-600">Aucune activité</span>
                   )}
                 </td>
-                <td className="px-4 py-3 align-top">
+                <td className="px-4 py-3.5 align-top">
                   <span className="font-medium text-zinc-900 dark:text-white">
                     {row.totalTokensUsed}
                   </span>
@@ -198,7 +211,7 @@ export default async function AdminPage() {
                     {row.totalActions} action{row.totalActions > 1 ? "s" : ""}
                   </p>
                 </td>
-                <td className="px-4 py-3 align-top">
+                <td className="px-4 py-3.5 align-top">
                   <UserRowActions userId={row.id} banned={row.banned} />
                 </td>
               </tr>
