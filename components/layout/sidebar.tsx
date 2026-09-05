@@ -78,7 +78,14 @@ export function Sidebar({
       )}
     >
       <div className={cn("flex items-center pb-2 pt-6", isOpen ? "gap-2.5 px-5" : "justify-center px-0")}>
-        <Image src="/logo-icon.png" alt="RYNVA" width={30} height={30} className="shrink-0 rounded-md" />
+        <Link href="/" className="flex items-center gap-2.5">
+          <Image src="/logo-icon.png" alt="RYNVA" width={30} height={30} className="shrink-0 rounded-md" />
+          {isOpen && (
+            <span className="text-base font-semibold tracking-tight text-zinc-900 dark:text-white">
+              RYNVA
+            </span>
+          )}
+        </Link>
       </div>
 
       <div className={cn("px-3 pb-2", isOpen ? "flex justify-end" : "flex justify-center")}>

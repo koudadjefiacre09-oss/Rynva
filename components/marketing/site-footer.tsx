@@ -35,6 +35,12 @@ export function SiteFooter() {
           <p className="mt-3 max-w-[220px] text-sm text-ink-muted">
             Créez, éditez et innovez avec l&apos;IA, dans un seul studio.
           </p>
+          <a
+            href="mailto:hello@rynva.app"
+            className="mt-3 inline-block text-sm text-ink-muted hover:text-ink"
+          >
+            hello@rynva.app
+          </a>
         </div>
 
         {columns.map((column) => (
