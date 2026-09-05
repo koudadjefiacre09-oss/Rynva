@@ -38,7 +38,7 @@ function welcomeEmailHtml(name: string) {
             <tr>
               <td style="padding:0 32px 32px 32px;">
                 <a
-                  href="https://rynva.vercel.app/dashboard"
+                  href="https://rynva.app/dashboard"
                   style="display:inline-block;background-color:#141412;color:#ffffff;text-decoration:none;font-size:14px;font-weight:600;padding:12px 24px;border-radius:9999px;"
                 >
                   Accéder à mon studio
