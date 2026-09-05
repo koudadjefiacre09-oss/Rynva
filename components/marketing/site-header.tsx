@@ -39,7 +39,7 @@ export async function SiteHeader() {
     <header className="fixed inset-x-0 top-0 z-50 border-b border-border/60 bg-background/70 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center px-4 sm:px-6">
         <Link href="/" className="flex items-center">
-          <Image src="/logo-icon.png" alt="RYNVA" width={40} height={40} className="h-10 w-10" priority />
+          <Image src="/logo-full.png" alt="RYNVA" width={158} height={72} className="h-8 w-auto" priority />
         </Link>
 
         <nav className="ml-10 hidden items-center gap-6 text-sm font-medium text-ink md:flex">
