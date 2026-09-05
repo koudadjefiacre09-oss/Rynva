@@ -3,6 +3,7 @@ import { Inter, Instrument_Sans, Instrument_Serif } from "next/font/google";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { ThemeScript } from "@/components/theme/theme-script";
 import { Toaster } from "@/components/ui/toaster";
+import { TrackVisit } from "@/components/analytics/track-visit";
 import "./globals.css";
 
 const inter = Inter({
@@ -63,6 +64,7 @@ export default function RootLayout({
       <body>
         <ThemeScript />
         <ThemeProvider>
+          <TrackVisit />
           {children}
           <Toaster />
         </ThemeProvider>

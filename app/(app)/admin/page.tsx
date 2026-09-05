@@ -3,7 +3,9 @@ import { AlertTriangle } from "lucide-react";
 import { requireAdmin } from "@/lib/admin/auth";
 import { createAdminClient, isAdminConfigured } from "@/lib/supabase/admin";
 import { UserRowActions } from "@/components/admin/user-row-actions";
+import { TrafficSection } from "@/components/admin/traffic-section";
 import { ACTION_LABEL, type ActivityAction } from "@/lib/activity/log";
+import { getVisitStats } from "@/lib/visits/stats";
 
 export const metadata: Metadata = { title: "Admin" };
 
@@ -59,7 +61,7 @@ export default async function AdminPage() {
 
   const supabaseAdmin = createAdminClient();
 
-  const [{ data: usersResult, error: usersError }, { data: profiles }, { data: activity }] =
+  const [{ data: usersResult, error: usersError }, { data: profiles }, { data: activity }, visitStats] =
     await Promise.all([
       supabaseAdmin.auth.admin.listUsers({ perPage: 200 }),
       supabaseAdmin.from("profiles").select("id, country"),
@@ -68,6 +70,7 @@ export default async function AdminPage() {
         .select("user_id, action_type, status, tokens_used, error_message, created_at")
         .order("created_at", { ascending: false })
         .limit(2000),
+      getVisitStats(14),
     ]);
 
   if (usersError || !usersResult) {
@@ -117,6 +120,8 @@ export default async function AdminPage() {
           {rows.length} compte{rows.length > 1 ? "s" : ""}, activité et consommation par utilisateur.
         </p>
       </div>
+
+      <TrafficSection stats={visitStats} />
 
       <div className="overflow-x-auto rounded-2xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
         <table className="w-full min-w-[900px] border-collapse text-left text-sm">
