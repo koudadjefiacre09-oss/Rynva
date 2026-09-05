@@ -10,6 +10,7 @@ export default function RegisterPage() {
   return (
     <AuthShell
       activeTab="register"
+      maxWidth="md"
       title="Créez votre compte"
       description="Rejoignez RYNVA et créez avec l'IA en quelques secondes."
       footer={

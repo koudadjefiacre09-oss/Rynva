@@ -29,63 +29,67 @@ export function RegisterForm() {
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="fullName" className="text-sm font-medium text-ink-muted">
-          Nom complet
-        </label>
-        <Input
-          id="fullName"
-          name="fullName"
-          placeholder="Votre nom"
-          autoComplete="name"
-          error={state?.fieldErrors?.fullName}
-          className={inputClassName}
-        />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="fullName" className="text-sm font-medium text-ink-muted">
+            Nom complet
+          </label>
+          <Input
+            id="fullName"
+            name="fullName"
+            placeholder="Votre nom"
+            autoComplete="name"
+            error={state?.fieldErrors?.fullName}
+            className={inputClassName}
+          />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="email" className="text-sm font-medium text-ink-muted">
+            Email
+          </label>
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="vous@exemple.com"
+            autoComplete="email"
+            error={state?.fieldErrors?.email}
+            className={inputClassName}
+          />
+        </div>
       </div>
 
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="email" className="text-sm font-medium text-ink-muted">
-          Email
-        </label>
-        <Input
-          id="email"
-          name="email"
-          type="email"
-          placeholder="vous@exemple.com"
-          autoComplete="email"
-          error={state?.fieldErrors?.email}
-          className={inputClassName}
-        />
-      </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="password" className="text-sm font-medium text-ink-muted">
+            Mot de passe
+          </label>
+          <Input
+            id="password"
+            name="password"
+            type="password"
+            placeholder="8 caractères minimum"
+            autoComplete="new-password"
+            error={state?.fieldErrors?.password}
+            className={inputClassName}
+          />
+        </div>
 
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="password" className="text-sm font-medium text-ink-muted">
-          Mot de passe
-        </label>
-        <Input
-          id="password"
-          name="password"
-          type="password"
-          placeholder="8 caractères minimum"
-          autoComplete="new-password"
-          error={state?.fieldErrors?.password}
-          className={inputClassName}
-        />
-      </div>
-
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="confirmPassword" className="text-sm font-medium text-ink-muted">
-          Confirmer le mot de passe
-        </label>
-        <Input
-          id="confirmPassword"
-          name="confirmPassword"
-          type="password"
-          placeholder="••••••••"
-          autoComplete="new-password"
-          error={state?.fieldErrors?.confirmPassword}
-          className={inputClassName}
-        />
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="confirmPassword" className="text-sm font-medium text-ink-muted">
+            Confirmer le mot de passe
+          </label>
+          <Input
+            id="confirmPassword"
+            name="confirmPassword"
+            type="password"
+            placeholder="••••••••"
+            autoComplete="new-password"
+            error={state?.fieldErrors?.confirmPassword}
+            className={inputClassName}
+          />
+        </div>
       </div>
 
       {state?.error && (

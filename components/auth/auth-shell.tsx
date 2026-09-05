@@ -1,12 +1,18 @@
 import Image from "next/image";
 import Link from "next/link";
 
+const MAX_WIDTH = {
+  sm: "max-w-sm",
+  md: "max-w-md",
+} as const;
+
 export function AuthShell({
   title,
   description,
   children,
   footer,
   activeTab,
+  maxWidth = "sm",
 }: {
   title: string;
   description?: string;
@@ -14,13 +20,15 @@ export function AuthShell({
   footer?: React.ReactNode;
   /** Which of the two auth pages is showing, for the Sign in / Sign up switcher — omit to hide it (reset/update password, onboarding, check-email). */
   activeTab?: "login" | "register";
+  /** "md" gives register's paired-up fields (name+email, password+confirm) room to sit two-per-row instead of stacking into a page-long form. */
+  maxWidth?: keyof typeof MAX_WIDTH;
 }) {
   return (
     // Fixed light editorial look, same fixed palette as the marketing
     // landing page — not theme-toggled, so it stays consistent whether the
     // visitor arrived with dark mode on or off.
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-cream px-4 py-12 font-display">
-      <div className="relative w-full max-w-sm">
+      <div className={`relative w-full ${MAX_WIDTH[maxWidth]}`}>
         <Link href="/" className="mb-8 flex items-center justify-center gap-2.5">
           <Image src="/logo.png" alt="RYNVA" width={32} height={32} />
           <span className="text-lg font-semibold tracking-tight text-ink">RYNVA</span>
