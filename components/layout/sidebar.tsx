@@ -73,7 +73,7 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        "hidden lg:flex lg:h-full lg:shrink-0 lg:flex-col lg:border-r lg:border-zinc-100 lg:bg-white lg:transition-all lg:duration-300 lg:ease-in-out dark:lg:border-zinc-800/50 dark:lg:bg-black",
+        "hidden lg:my-3 lg:ml-3 lg:flex lg:h-[calc(100%-1.5rem)] lg:shrink-0 lg:flex-col lg:rounded-3xl lg:border lg:border-zinc-200 lg:bg-white lg:shadow-sm lg:transition-all lg:duration-300 lg:ease-in-out dark:lg:border-zinc-800 dark:lg:bg-zinc-900",
         isOpen ? "lg:w-64" : "lg:w-16"
       )}
     >
