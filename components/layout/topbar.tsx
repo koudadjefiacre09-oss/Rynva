@@ -66,7 +66,7 @@ export function Topbar({
   }
 
   return (
-    <header className="flex h-16 items-center gap-4 border-b border-zinc-100 bg-white px-4 dark:border-zinc-800/50 dark:bg-black lg:px-6">
+    <header className="mx-3 mt-3 flex h-16 shrink-0 items-center gap-4 rounded-3xl border border-zinc-200 bg-white px-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 lg:px-6">
       <button
         type="button"
         aria-label="Ouvrir le menu"
