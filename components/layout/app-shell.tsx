@@ -41,7 +41,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex h-screen overflow-hidden bg-white dark:bg-black">
-      <Sidebar isAdmin={profile?.isAdmin ?? false} />
+      <Sidebar user={user} profile={profile} isAdmin={profile?.isAdmin ?? false} />
       <div className="flex h-full flex-1 flex-col overflow-y-auto">
         <Topbar
           user={user}

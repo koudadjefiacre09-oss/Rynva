@@ -24,7 +24,14 @@ interface Result {
   thumbnailUrl?: string;
 }
 
-export function CommandPalette({ recentGenerations = [] }: { recentGenerations?: GenerationWithUrl[] }) {
+export function CommandPalette({
+  recentGenerations = [],
+  size = "sm",
+}: {
+  recentGenerations?: GenerationWithUrl[];
+  /** "lg" is the big centered hero trigger used on the dashboard; "sm" (default) is the topbar's compact one. */
+  size?: "sm" | "lg";
+}) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -112,25 +119,41 @@ export function CommandPalette({ recentGenerations = [] }: { recentGenerations?:
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="hidden flex-1 items-center gap-2.5 rounded-full border border-zinc-200 bg-zinc-50 px-4 py-2 text-left text-sm text-zinc-400 transition-colors hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-500 dark:hover:border-zinc-700 sm:flex"
-      >
-        <Search className="h-4 w-4 shrink-0" />
-        <span className="flex-1 truncate">Rechercher un outil, un projet...</span>
-        <kbd className="shrink-0 rounded-md border border-zinc-300 bg-white px-1.5 py-0.5 text-[11px] font-medium text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
-          ⌘K
-        </kbd>
-      </button>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        aria-label="Rechercher"
-        className="flex h-10 w-10 items-center justify-center rounded-lg text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-white sm:hidden"
-      >
-        <Search className="h-4.5 w-4.5" />
-      </button>
+      {size === "lg" ? (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="flex w-full items-center gap-3 rounded-full border border-zinc-200 bg-white px-5 py-4 text-left text-base text-zinc-400 shadow-sm transition-colors hover:border-zinc-300 hover:shadow dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-500 dark:hover:border-zinc-700"
+        >
+          <Search className="h-5 w-5 shrink-0" />
+          <span className="flex-1 truncate">Demandez à RYNVA ou accédez aux outils</span>
+          <kbd className="shrink-0 rounded-md border border-zinc-300 bg-white px-1.5 py-0.5 text-[11px] font-medium text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
+            ⌘K
+          </kbd>
+        </button>
+      ) : (
+        <>
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            className="hidden flex-1 items-center gap-2.5 rounded-full border border-zinc-200 bg-zinc-50 px-4 py-2 text-left text-sm text-zinc-400 transition-colors hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-500 dark:hover:border-zinc-700 sm:flex"
+          >
+            <Search className="h-4 w-4 shrink-0" />
+            <span className="flex-1 truncate">Rechercher un outil, un projet...</span>
+            <kbd className="shrink-0 rounded-md border border-zinc-300 bg-white px-1.5 py-0.5 text-[11px] font-medium text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
+              ⌘K
+            </kbd>
+          </button>
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            aria-label="Rechercher"
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-white sm:hidden"
+          >
+            <Search className="h-4.5 w-4.5" />
+          </button>
+        </>
+      )}
 
       {open && (
         <div

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowUp, Download, Paperclip, Sparkles } from "lucide-react";
+import { ArrowUp, Download, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { notifySuccess } from "@/lib/toast";
 
@@ -81,16 +81,7 @@ export function ImageStudio() {
         </div>
 
         <form onSubmit={handleSubmit} className="w-full">
-          <div className="flex items-end gap-2 rounded-2xl border border-zinc-200 bg-zinc-50 p-2 pl-3 shadow-sm transition-colors focus-within:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900/70 dark:shadow-none dark:focus-within:border-zinc-700">
-            <button
-              type="button"
-              disabled
-              title="Import d'image, bientôt disponible"
-              className="mb-1.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-zinc-400 transition-colors hover:bg-zinc-200 hover:text-zinc-600 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-zinc-400 dark:text-zinc-500 dark:hover:bg-zinc-800 dark:hover:text-zinc-300 dark:disabled:hover:text-zinc-500"
-            >
-              <Paperclip className="h-4 w-4" />
-            </button>
-
+          <div className="flex items-end gap-2 rounded-2xl border border-zinc-200 bg-zinc-50 p-2 pl-4 shadow-sm transition-colors focus-within:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900/70 dark:shadow-none dark:focus-within:border-zinc-700">
             <textarea
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}

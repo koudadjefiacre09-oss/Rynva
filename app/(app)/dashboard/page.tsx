@@ -1,12 +1,14 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Crown, ChevronRight } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { ProjectCard } from "@/components/gallery/project-card";
+import { CommandPalette } from "@/components/search/command-palette";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { listGenerations, type GenerationWithUrl } from "@/lib/generations/list";
 import { AI_TOOLS } from "@/lib/ai-tools";
+import { NAV_ACCENT, DEFAULT_NAV_ACCENT } from "@/lib/nav-colors";
+import { cn } from "@/lib/utils";
 
 export default async function DashboardPage() {
   let firstName = "";
@@ -26,47 +28,39 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="-m-4 min-h-[calc(100vh-4rem)] bg-white px-4 py-10 dark:bg-black lg:-m-6 lg:px-8">
-      <div className="mx-auto flex max-w-6xl flex-col gap-8">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-white">
-            Bon retour{firstName ? `, ${firstName}` : ""} 👋
-          </h1>
-          <p className="mt-1 text-sm text-zinc-500">
-            Choisissez un outil pour démarrer une nouvelle création.
-          </p>
+    <div className="-m-4 min-h-[calc(100vh-4rem)] bg-white px-4 py-14 dark:bg-black lg:-m-6 lg:px-8">
+      {/* Hero: greeting + big search bar + tool shortcuts — Magnific-style launcher. */}
+      <div className="mx-auto flex max-w-3xl flex-col items-center gap-7 text-center">
+        <h1 className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-white">
+          Bonjour{firstName ? `, ${firstName}` : ""}, commencez à créer !
+        </h1>
+
+        <div className="w-full max-w-xl">
+          <CommandPalette size="lg" recentGenerations={recentProjects} />
         </div>
 
-        <div>
-          <h2 className="mb-3 text-sm font-medium text-zinc-500">Outils IA</h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {AI_TOOLS.map((tool) => (
-              <Link
-                key={tool.href}
-                href={tool.href}
-                className="group flex h-full flex-col gap-3 rounded-2xl border border-zinc-200 bg-white p-5 transition-all duration-200 hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800/60 dark:bg-zinc-900/60 dark:hover:border-zinc-700 dark:hover:bg-zinc-900/80"
+        <div className="grid w-full grid-cols-3 gap-2 sm:grid-cols-6">
+          {AI_TOOLS.map((tool) => (
+            <Link
+              key={tool.href}
+              href={tool.href}
+              className="flex flex-col items-center gap-2 rounded-2xl p-3 transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900"
+            >
+              <span
+                className={cn(
+                  "relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl",
+                  NAV_ACCENT[tool.href] ?? DEFAULT_NAV_ACCENT
+                )}
               >
-                <div className="flex w-full items-start justify-between">
-                  <div className="relative h-16 w-16 shrink-0 overflow-hidden">
-                    <Image
-                      src={tool.imageSrc}
-                      alt=""
-                      fill
-                      sizes="64px"
-                      className="object-contain"
-                    />
-                  </div>
-                  {tool.badge && <Badge variant="brand">{tool.badge}</Badge>}
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-zinc-900 dark:text-white">{tool.label}</p>
-                  <p className="mt-1 text-xs text-zinc-500">{tool.desc}</p>
-                </div>
-              </Link>
-            ))}
-          </div>
+                <Image src={tool.imageSrc} alt="" fill sizes="48px" className="object-cover" />
+              </span>
+              <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">{tool.label}</span>
+            </Link>
+          ))}
         </div>
+      </div>
 
+      <div className="mx-auto mt-16 flex max-w-6xl flex-col gap-8">
         <Link
           href="/premium"
           className="group relative flex flex-col items-start gap-4 overflow-hidden rounded-2xl border border-zinc-200 bg-white p-6 transition-colors hover:border-brand-purple/30 dark:border-zinc-800 dark:bg-black sm:flex-row sm:items-center sm:justify-between sm:p-7"

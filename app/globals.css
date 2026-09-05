@@ -75,4 +75,16 @@
     background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
     background-size: 3px 3px;
   }
+
+  /* Hides the scrollbar track/arrows on scrollable panels (e.g. the sidebar
+     nav) while keeping the panel scrollable — used instead of the default
+     OS scrollbar, which renders its up/down arrow buttons even on a thin
+     w-16 rail and looks out of place there. */
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 }

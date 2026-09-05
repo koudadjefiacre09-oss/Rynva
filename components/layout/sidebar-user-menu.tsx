@@ -2,39 +2,32 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ChevronDown, LogOut, User, Settings, CreditCard, Crown } from "lucide-react";
+import { LogOut, User, Settings, CreditCard, Crown, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logout } from "@/app/auth/actions";
+import { initialsOf, type UserMenuUser } from "@/components/layout/user-menu";
 import type { Profile } from "@/lib/profiles/get";
-
-export type UserMenuUser = { id: string; name: string; email: string };
 
 const PLAN_BADGE: Record<string, string> = { free: "Free", pro: "Pro" };
 
-export function initialsOf(name: string) {
-  return (
-    name
-      .trim()
-      .split(/\s+/)
-      .map((part) => part[0])
-      .slice(0, 2)
-      .join("")
-      .toUpperCase() || "?"
-  );
-}
-
 /**
- * Avatar + dropdown menu (profile header, upgrade CTA, profile/billing/
- * settings/logout links). Shared between the authenticated Topbar and the
- * public SiteHeader (shown there once the visitor is signed in) so both use
- * the exact same menu.
+ * Replaces the old standalone "Paramètres" link at the bottom of the
+ * sidebar: an avatar row that opens a dropdown *above* itself (ChatGPT's
+ * bottom-left account menu shape) rather than below, since it sits at the
+ * very bottom of the screen — a downward menu would run off-viewport.
+ * Folds in what used to be separate destinations (profile, settings, admin)
+ * plus sign-out, so this one row replaces the whole old bottom section.
  */
-export function UserMenu({
+export function SidebarUserMenu({
   user,
   profile = null,
+  isAdmin = false,
+  sidebarOpen,
 }: {
   user: UserMenuUser;
   profile?: Profile | null;
+  isAdmin?: boolean;
+  sidebarOpen: boolean;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -44,9 +37,7 @@ export function UserMenu({
     if (!menuOpen) return;
 
     function handlePointerDown(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setMenuOpen(false);
-      }
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false);
     }
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape") setMenuOpen(false);
@@ -61,41 +52,12 @@ export function UserMenu({
   }, [menuOpen]);
 
   return (
-    <div className="relative" ref={menuRef}>
-      <button
-        type="button"
-        onClick={() => setMenuOpen((open) => !open)}
-        aria-haspopup="menu"
-        aria-expanded={menuOpen}
-        aria-label={`Connecté en tant que ${user.name}`}
-        title={user.email}
-        className="flex items-center gap-2 rounded-full transition-opacity hover:opacity-90"
-      >
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-brand text-xs font-semibold text-white">
-          {profile?.avatarUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={profile.avatarUrl} alt="" className="h-full w-full object-cover" />
-          ) : (
-            initialsOf(user.name)
-          )}
-        </span>
-        <span className="hidden text-sm font-medium text-zinc-700 dark:text-zinc-300 sm:inline">
-          {user.name.split(" ")[0]}
-        </span>
-        <ChevronDown
-          className={cn(
-            "h-4 w-4 text-zinc-400 transition-transform duration-200",
-            menuOpen && "rotate-180"
-          )}
-        />
-      </button>
-
+    <div className="relative border-t border-zinc-100 p-3 dark:border-zinc-800/50" ref={menuRef}>
       {menuOpen && (
         <div
           role="menu"
-          className="absolute right-0 top-full z-50 mt-2 w-64 overflow-hidden rounded-2xl border border-zinc-100 bg-white py-2 shadow-lg shadow-zinc-200/60 dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-black/40"
+          className="absolute bottom-full left-3 z-50 mb-2 w-64 overflow-hidden rounded-2xl border border-zinc-100 bg-white py-2 shadow-lg shadow-zinc-200/60 dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-black/40"
         >
-          {/* Profile header */}
           <div className="flex items-center gap-3 px-4 py-3">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-brand text-sm font-semibold text-white">
               {profile?.avatarUrl ? (
@@ -109,13 +71,10 @@ export function UserMenu({
               <span className="truncate text-sm font-semibold text-zinc-900 dark:text-white">
                 {user.name}
               </span>
-              <span className="truncate text-xs text-zinc-400 dark:text-zinc-500">
-                {user.email}
-              </span>
+              <span className="truncate text-xs text-zinc-400 dark:text-zinc-500">{user.email}</span>
             </div>
           </div>
 
-          {/* Upgrade CTA */}
           {profile?.plan !== "pro" && (
             <div className="px-3 pb-3">
               <Link
@@ -161,6 +120,17 @@ export function UserMenu({
               <Settings className="h-4 w-4" />
               Réglages
             </Link>
+            {isAdmin && (
+              <Link
+                href="/admin"
+                role="menuitem"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-zinc-700 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white"
+              >
+                <ShieldCheck className="h-4 w-4" />
+                Administration
+              </Link>
+            )}
             <div className="my-1 h-px bg-zinc-100 dark:bg-zinc-800" />
             <form action={logout}>
               <button
@@ -175,6 +145,28 @@ export function UserMenu({
           </div>
         </div>
       )}
+
+      <button
+        type="button"
+        onClick={() => setMenuOpen((v) => !v)}
+        aria-haspopup="menu"
+        aria-expanded={menuOpen}
+        title={!sidebarOpen ? user.name : undefined}
+        className={cn(
+          "flex w-full items-center gap-3 rounded-full py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-900",
+          sidebarOpen ? "px-2" : "justify-center px-0"
+        )}
+      >
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-brand text-xs font-semibold text-white">
+          {profile?.avatarUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={profile.avatarUrl} alt="" className="h-full w-full object-cover" />
+          ) : (
+            initialsOf(user.name)
+          )}
+        </span>
+        {sidebarOpen && <span className="truncate">{user.name.split(" ")[0]}</span>}
+      </button>
     </div>
   );
 }
