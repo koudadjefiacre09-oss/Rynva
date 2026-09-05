@@ -9,12 +9,13 @@ export const metadata: Metadata = { title: "Créer un compte" };
 export default function RegisterPage() {
   return (
     <AuthShell
+      activeTab="register"
       title="Créez votre compte"
       description="Rejoignez RYNVA et créez avec l'IA en quelques secondes."
       footer={
         <>
           Déjà un compte ?{" "}
-          <Link href="/login" className="font-medium text-brand-purple hover:underline">
+          <Link href="/login" className="font-medium text-ink underline underline-offset-2">
             Se connecter
           </Link>
         </>

@@ -32,9 +32,21 @@ const config: Config = {
         success: "#3DDC84",
         warning: "#F5A623",
         danger: "#FF5C5C",
+        // Landing page palette — warm off-white paper + near-black ink,
+        // matching the reference design (light, editorial, not theme-toggled).
+        cream: {
+          DEFAULT: "#EFEFEA",
+          dark: "#E4E3DA",
+        },
+        ink: {
+          DEFAULT: "#141412",
+          muted: "#6B6B62",
+        },
       },
       fontFamily: {
         sans: ["var(--font-inter)", "Inter", "system-ui", "sans-serif"],
+        display: ["var(--font-display)", "var(--font-inter)", "system-ui", "sans-serif"],
+        "display-serif": ["var(--font-display-serif)", "Georgia", "serif"],
       },
       // 4/8px spacing scale additions beyond Tailwind defaults
       spacing: {
@@ -56,6 +68,8 @@ const config: Config = {
         "gradient-accent": "linear-gradient(135deg, #A855F7 0%, #3D88FF 100%)",
         "gradient-radial-glow":
           "radial-gradient(circle at 50% 0%, rgba(120,92,255,0.25) 0%, rgba(7,9,16,0) 60%)",
+        // Marketing landing page palette — blue accent on black/gray-900.
+        "gradient-blue": "linear-gradient(135deg, #2563EB 0%, #38BDF8 100%)",
       },
       boxShadow: {
         glow: "0 0 40px -10px rgba(120, 92, 255, 0.45)",
