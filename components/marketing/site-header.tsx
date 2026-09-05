@@ -66,7 +66,7 @@ export async function SiteHeader() {
                   Aller au dashboard
                 </Button>
               </Link>
-              <UserMenu user={user} profile={profile} />
+              <UserMenu user={user} profile={profile} isAdmin={profile?.isAdmin ?? false} />
             </>
           ) : (
             <>

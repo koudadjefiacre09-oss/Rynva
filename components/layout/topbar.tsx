@@ -114,7 +114,7 @@ export function Topbar({
         )}
 
         {user ? (
-          <UserMenu user={user} profile={profile} />
+          <UserMenu user={user} profile={profile} isAdmin={profile?.isAdmin ?? false} />
         ) : (
           <div className="h-9 w-9 rounded-full bg-gradient-brand" aria-label="Profil utilisateur" />
         )}
