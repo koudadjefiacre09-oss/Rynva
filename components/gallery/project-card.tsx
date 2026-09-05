@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Download, Sparkles, Trash2, UserPlus, Check, X, Star } from "lucide-react";
+import { Download, Sparkles, Trash2, UserPlus, Check, X, Star, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatRelativeTime } from "@/lib/format-relative-time";
 import type { GenerationWithUrl } from "@/lib/generations/list";
@@ -56,13 +56,20 @@ function Media({ item }: { item: GenerationWithUrl }) {
 export function ProjectCard({
   item,
   onToggleFavorite,
+  variant = "default",
+  onRemoveFromTrash,
 }: {
   item: GenerationWithUrl;
   /** Called after a successful toggle — e.g. /favorites drops the card immediately on un-star. */
   onToggleFavorite?: (id: string, next: boolean) => void;
+  /** "trash" swaps the usual actions (download/animate/star/delete) for Restaurer / Supprimer définitivement — used on /trash. */
+  variant?: "default" | "trash";
+  /** Called after a successful restore or permanent delete, so the trash grid can drop the card. */
+  onRemoveFromTrash?: (id: string) => void;
 }) {
   const [deleted, setDeleted] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [restoring, setRestoring] = useState(false);
   const [favorite, setFavorite] = useState(item.is_favorite);
   const [favoriting, setFavoriting] = useState(false);
   const [savingChar, setSavingChar] = useState(false);
@@ -97,11 +104,43 @@ export function ProjectCard({
   }
 
   async function handleDelete() {
-    if (!window.confirm("Supprimer ce projet définitivement ?")) return;
+    if (!window.confirm("Déplacer ce projet à la corbeille ?")) return;
     setDeleting(true);
     try {
       const res = await fetch(`/api/generations/${item.id}`, { method: "DELETE" });
       if (res.ok) setDeleted(true);
+    } finally {
+      setDeleting(false);
+    }
+  }
+
+  async function handleRestore() {
+    if (restoring) return;
+    setRestoring(true);
+    try {
+      const res = await fetch(`/api/generations/${item.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ restore: true }),
+      });
+      if (res.ok) {
+        setDeleted(true);
+        onRemoveFromTrash?.(item.id);
+      }
+    } finally {
+      setRestoring(false);
+    }
+  }
+
+  async function handlePermanentDelete() {
+    if (!window.confirm("Supprimer définitivement ? Cette action est irréversible.")) return;
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/generations/${item.id}?permanent=1`, { method: "DELETE" });
+      if (res.ok) {
+        setDeleted(true);
+        onRemoveFromTrash?.(item.id);
+      }
     } finally {
       setDeleting(false);
     }
@@ -135,16 +174,18 @@ export function ProjectCard({
     <div className="flex flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
       <div className="relative aspect-square w-full bg-zinc-100 dark:bg-zinc-800">
         <Media item={item} />
-        <button
-          type="button"
-          onClick={handleToggleFavorite}
-          disabled={favoriting}
-          aria-label={favorite ? "Retirer des favoris" : "Ajouter aux favoris"}
-          aria-pressed={favorite}
-          className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-zinc-500 shadow-sm backdrop-blur transition-colors hover:text-amber-500 disabled:cursor-not-allowed dark:bg-black/60 dark:text-zinc-400"
-        >
-          <Star className={cn("h-3.5 w-3.5", favorite && "fill-amber-400 text-amber-400")} />
-        </button>
+        {variant === "default" && (
+          <button
+            type="button"
+            onClick={handleToggleFavorite}
+            disabled={favoriting}
+            aria-label={favorite ? "Retirer des favoris" : "Ajouter aux favoris"}
+            aria-pressed={favorite}
+            className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-zinc-500 shadow-sm backdrop-blur transition-colors hover:text-amber-500 disabled:cursor-not-allowed dark:bg-black/60 dark:text-zinc-400"
+          >
+            <Star className={cn("h-3.5 w-3.5", favorite && "fill-amber-400 text-amber-400")} />
+          </button>
+        )}
       </div>
       <div className="flex flex-col gap-1.5 p-3">
         <div className="flex items-center justify-between">
@@ -191,6 +232,27 @@ export function ProjectCard({
               </button>
             </div>
           </div>
+        ) : variant === "trash" ? (
+          <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
+            <button
+              type="button"
+              onClick={handleRestore}
+              disabled={restoring || deleting}
+              className={ACTION_BUTTON}
+            >
+              <RotateCcw className="h-3 w-3" />
+              Restaurer
+            </button>
+            <button
+              type="button"
+              onClick={handlePermanentDelete}
+              disabled={restoring || deleting}
+              className="ml-auto flex items-center gap-1 rounded-full border border-zinc-300 px-2 py-1 text-[11px] font-medium text-zinc-500 transition-colors hover:border-danger/50 hover:text-danger disabled:opacity-50 dark:border-zinc-700 dark:text-zinc-400"
+            >
+              <Trash2 className="h-3 w-3" />
+              Supprimer
+            </button>
+          </div>
         ) : (
           <div className="mt-0.5 flex flex-wrap items-center gap-1">
             <a href={item.url} download target="_blank" rel="noreferrer">
@@ -220,7 +282,8 @@ export function ProjectCard({
               type="button"
               onClick={handleDelete}
               disabled={deleting}
-              aria-label="Supprimer"
+              aria-label="Déplacer à la corbeille"
+              title="Déplacer à la corbeille"
               className="ml-auto flex items-center justify-center rounded-full border border-zinc-300 p-1 text-zinc-500 transition-colors hover:border-danger/50 hover:text-danger disabled:opacity-50 dark:border-zinc-700 dark:text-zinc-400"
             >
               <Trash2 className="h-3 w-3" />

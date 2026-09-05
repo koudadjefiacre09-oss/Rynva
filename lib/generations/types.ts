@@ -17,4 +17,5 @@ export interface GenerationRow {
   metadata: Record<string, unknown>;
   is_favorite: boolean;
   created_at: string;
+  deleted_at: string | null;
 }

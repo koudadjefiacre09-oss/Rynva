@@ -16,6 +16,7 @@ export async function listGenerations(userId: string, limit?: number): Promise<G
     .from("generations")
     .select("*")
     .eq("user_id", userId)
+    .is("deleted_at", null)
     .order("created_at", { ascending: false });
 
   if (limit) query = query.limit(limit);
@@ -33,7 +34,25 @@ export async function listFavorites(userId: string, limit?: number): Promise<Gen
     .select("*")
     .eq("user_id", userId)
     .eq("is_favorite", true)
+    .is("deleted_at", null)
     .order("created_at", { ascending: false });
+
+  if (limit) query = query.limit(limit);
+
+  const { data: rows, error } = await query;
+  return await withSignedUrls(rows, error);
+}
+
+/** Same as listGenerations, but only the user's soft-deleted creations — backs /trash. */
+export async function listTrash(userId: string, limit?: number): Promise<GenerationWithUrl[]> {
+  const supabase = await createClient();
+
+  let query = supabase
+    .from("generations")
+    .select("*")
+    .eq("user_id", userId)
+    .not("deleted_at", "is", null)
+    .order("deleted_at", { ascending: false });
 
   if (limit) query = query.limit(limit);
 

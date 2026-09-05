@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { ProjectsSubnav } from "@/components/gallery/projects-subnav";
-import { FavoritesGrid } from "@/components/gallery/favorites-grid";
+import { TrashGrid } from "@/components/gallery/trash-grid";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
-import { listFavorites } from "@/lib/generations/list";
+import { listTrash } from "@/lib/generations/list";
 
-export const metadata: Metadata = { title: "Favoris" };
+export const metadata: Metadata = { title: "Corbeille" };
 
-export default async function FavoritesPage() {
+export default async function TrashPage() {
   if (!isSupabaseConfigured) redirect("/login");
 
   const supabase = await createClient();
@@ -17,23 +17,24 @@ export default async function FavoritesPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const items = await listFavorites(user.id);
+  const items = await listTrash(user.id);
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6 sm:flex-row sm:gap-8">
-      <ProjectsSubnav active="favorites" />
+      <ProjectsSubnav active="trash" />
 
       <div className="flex min-w-0 flex-1 flex-col gap-6">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-white">
-            Favoris
+            Corbeille
           </h1>
           <p className="mt-1 text-sm text-zinc-500">
-            Vos créations marquées d&rsquo;une étoile : images, vidéos, designs et audios.
+            Les projets supprimés restent ici jusqu&rsquo;à ce que vous les restauriez ou les
+            supprimiez définitivement.
           </p>
         </div>
 
-        <FavoritesGrid initialItems={items} />
+        <TrashGrid initialItems={items} />
       </div>
     </div>
   );
