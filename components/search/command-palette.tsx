@@ -65,7 +65,7 @@ export function CommandPalette({
       AI_TOOLS.map((tool: AiTool) => ({
         kind: "tool" as const,
         key: tool.href,
-        label: `AI ${tool.label}`,
+        label: tool.label,
         sublabel: tool.desc,
         href: tool.href,
         imageSrc: tool.imageSrc,

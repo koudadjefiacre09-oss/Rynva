@@ -22,32 +22,32 @@ export const metadata: Metadata = { title: "Fonctionnalités" };
 const tools = [
   {
     icon: ImageIcon,
-    label: "AI Image",
+    label: "Image",
     desc: "Générez des visuels originaux à partir d'un simple prompt texte : illustrations, photos réalistes, concept art.",
   },
   {
     icon: Video,
-    label: "AI Video",
+    label: "Video",
     desc: "Transformez une idée ou une image en vidéo courte, prête pour vos réseaux ou vos présentations.",
   },
   {
     icon: Camera,
-    label: "AI Photo",
+    label: "Photo",
     desc: "Importez une photo et retirez son arrière-plan instantanément, sans logiciel de retouche.",
   },
   {
     icon: Palette,
-    label: "AI Design",
+    label: "Design",
     desc: "Créez des designs pour posts, stories, affiches et bannières, adaptés au bon format en un clic.",
   },
   {
     icon: AudioLines,
-    label: "AI Audio",
+    label: "Audio",
     desc: "Générez voix off, musiques d'ambiance et effets sonores pour habiller vos créations.",
   },
   {
     icon: MessageSquare,
-    label: "AI Chat",
+    label: "Chat",
     desc: "Un assistant créatif pour affiner un brief, explorer des idées ou itérer sur un prompt.",
   },
 ];

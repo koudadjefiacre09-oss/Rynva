@@ -51,7 +51,7 @@ export function ChatStudio() {
     <div className="mx-auto flex h-[calc(100vh-8rem)] max-w-3xl flex-col gap-4">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-white">
-          AI Chat
+          Chat
         </h1>
         <p className="mt-1 text-sm text-zinc-500">Discutez avec l&apos;assistant RYNVA.</p>
       </div>

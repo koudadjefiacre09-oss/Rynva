@@ -10,37 +10,37 @@ const examples = [
   {
     src: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=80&auto=format&fit=crop",
     title: "Portrait cinématique",
-    tag: "AI Image",
+    tag: "Image",
     span: "sm:row-span-2",
   },
   {
     src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80&auto=format&fit=crop",
     title: "Paysage épique",
-    tag: "AI Image",
+    tag: "Image",
     span: "",
   },
   {
     src: "https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=800&q=80&auto=format&fit=crop",
     title: "Scène futuriste",
-    tag: "AI Vidéo",
+    tag: "Vidéo",
     span: "",
   },
   {
     src: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&q=80&auto=format&fit=crop",
     title: "Design graphique",
-    tag: "AI Design",
+    tag: "Design",
     span: "",
   },
   {
     src: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&q=80&auto=format&fit=crop",
     title: "Packshot produit",
-    tag: "AI Photo",
+    tag: "Photo",
     span: "sm:row-span-2",
   },
   {
     src: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80&auto=format&fit=crop",
     title: "Art conceptuel",
-    tag: "AI Image",
+    tag: "Image",
     span: "",
   },
 ];

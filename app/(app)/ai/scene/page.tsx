@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { listCharacters } from "@/lib/characters/list";
 
-export const metadata: Metadata = { title: "AI Scene" };
+export const metadata: Metadata = { title: "Scene" };
 
 export default async function AiScenePage() {
   if (!isSupabaseConfigured) redirect("/login");

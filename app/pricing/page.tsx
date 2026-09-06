@@ -15,7 +15,7 @@ const plans = [
     price: "0€",
     period: "pour toujours",
     description: "Pour découvrir RYNVA et tester les cinq outils IA.",
-    features: ["50 crédits offerts", "Accès à AI Image, Video, Design, Audio, Chat", "Historique 7 jours", "1 projet actif"],
+    features: ["50 crédits offerts", "Accès à Image, Video, Design, Audio, Chat", "Historique 7 jours", "1 projet actif"],
     cta: "Commencer gratuitement",
     href: "/register",
     available: true,

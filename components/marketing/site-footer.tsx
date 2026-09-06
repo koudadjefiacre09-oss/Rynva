@@ -7,7 +7,7 @@ const columns = [
     links: [
       { href: "/features", label: "Fonctionnalités" },
       { href: "/pricing", label: "Tarifs" },
-      { href: "/ai/chat", label: "AI Chat" },
+      { href: "/ai/chat", label: "Chat" },
     ],
   },
   {

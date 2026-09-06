@@ -14,13 +14,13 @@ import type { NotificationRow } from "@/lib/notifications/types";
 
 const SECTION_TITLES: { prefix: string; title: string }[] = [
   { prefix: "/dashboard", title: "Dashboard" },
-  { prefix: "/ai/image", title: "AI Image" },
-  { prefix: "/ai/video", title: "AI Video" },
-  { prefix: "/ai/photo", title: "AI Photo" },
-  { prefix: "/ai/design", title: "AI Design" },
-  { prefix: "/ai/audio", title: "AI Audio" },
-  { prefix: "/ai/scene", title: "AI Scene" },
-  { prefix: "/ai/chat", title: "AI Chat" },
+  { prefix: "/ai/image", title: "Image" },
+  { prefix: "/ai/video", title: "Video" },
+  { prefix: "/ai/photo", title: "Photo" },
+  { prefix: "/ai/design", title: "Design" },
+  { prefix: "/ai/audio", title: "Audio" },
+  { prefix: "/ai/scene", title: "Scene" },
+  { prefix: "/ai/chat", title: "Chat" },
   { prefix: "/characters", title: "Personnages" },
   { prefix: "/projects", title: "Projets" },
   { prefix: "/history", title: "Historique" },
@@ -74,11 +74,16 @@ export function Topbar({
         {sectionTitle(pathname)}
       </h1>
 
-      <div className="flex flex-1 justify-center">
-        <div className="w-full max-w-md">
-          <CommandPalette recentGenerations={recentGenerations} />
+      {/* /dashboard has its own, much larger CommandPalette front and center
+          in the hero — showing this one too was a redundant second search
+          bar for the exact same thing. */}
+      {pathname !== "/dashboard" && (
+        <div className="flex flex-1 justify-center">
+          <div className="w-full max-w-md">
+            <CommandPalette recentGenerations={recentGenerations} />
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="ml-auto flex items-center gap-3">
         <button
