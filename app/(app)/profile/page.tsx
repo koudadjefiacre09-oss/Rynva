@@ -10,6 +10,10 @@ import { getProfile } from "@/lib/profiles/get";
 import { getInvitedCount } from "@/lib/profiles/invites";
 
 export const metadata: Metadata = { title: "Mon profil" };
+// Credits/invites are read fresh on every visit — Next's Router Cache can
+// otherwise serve a stale snapshot from a few navigations ago (e.g. you
+// generate something on another tab, then land back here from cache).
+export const dynamic = "force-dynamic";
 
 const PLAN_BADGE: Record<string, string> = { free: "Free", pro: "Pro" };
 const PLAN_LABEL: Record<string, string> = {

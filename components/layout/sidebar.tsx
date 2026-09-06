@@ -4,41 +4,13 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import {
-  LayoutGrid,
-  Image as ImageIcon,
-  Video,
-  Camera,
-  Palette,
-  AudioLines,
-  MessageSquare,
-  Users,
-  Clapperboard,
-  FolderKanban,
-  History,
-  Star,
-  ChevronRight,
-} from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { NAV_ITEMS } from "@/lib/nav-items";
 import { NAV_ACCENT, DEFAULT_NAV_ACCENT } from "@/lib/nav-colors";
 import { SidebarUserMenu } from "@/components/layout/sidebar-user-menu";
 import type { UserMenuUser } from "@/components/layout/user-menu";
 import type { Profile } from "@/lib/profiles/get";
-
-const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutGrid },
-  { href: "/ai/image", label: "Image", icon: ImageIcon },
-  { href: "/ai/video", label: "Video", icon: Video },
-  { href: "/ai/photo", label: "Photo", icon: Camera },
-  { href: "/ai/design", label: "Design", icon: Palette },
-  { href: "/ai/audio", label: "Audio", icon: AudioLines },
-  { href: "/ai/scene", label: "Scene", icon: Clapperboard },
-  { href: "/ai/chat", label: "Chat", icon: MessageSquare },
-  { href: "/characters", label: "Personnages", icon: Users },
-  { href: "/projects", label: "Projets", icon: FolderKanban },
-  { href: "/history", label: "Historique", icon: History },
-  { href: "/favorites", label: "Favoris", icon: Star },
-];
 
 /**
  * Persistent desktop sidebar (per brief: desktop keeps a persistent sidebar,
@@ -103,7 +75,7 @@ export function Sidebar({
       </div>
 
       <nav className="no-scrollbar flex-1 space-y-1 overflow-y-auto px-3 py-2">
-        {navItems.map((item) => {
+        {NAV_ITEMS.map((item) => {
           const isActive = pathname === item.href;
           const Icon = item.icon;
           const accent = NAV_ACCENT[item.href] ?? DEFAULT_NAV_ACCENT;

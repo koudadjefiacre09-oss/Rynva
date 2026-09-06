@@ -11,9 +11,11 @@ import {
   Sun,
   Moon,
   SunMoon,
+  UserPlus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logout } from "@/app/auth/actions";
+import { notifySuccess } from "@/lib/toast";
 import { initialsOf, type UserMenuUser } from "@/components/layout/user-menu";
 import { useTheme, type Theme } from "@/components/theme/theme-provider";
 import type { Profile } from "@/lib/profiles/get";
@@ -84,6 +86,27 @@ export function AccountMenuContent({
 
       <div className="border-t border-zinc-100 py-1 dark:border-zinc-800">
         <MenuLink href="/profile" icon={User} label="Mon profil" onNavigate={onNavigate} />
+        {/* Hidden from sm up: the topbar already has a standalone "Invite
+            friends" button there (components/layout/topbar.tsx). Below sm
+            that button is hidden for space, so it lives here instead. */}
+        <button
+          type="button"
+          onClick={() => {
+            const link = `${window.location.origin}/register?ref=${user.id}`;
+            navigator.clipboard
+              .writeText(link)
+              .then(() => notifySuccess("Lien d'invitation copié !"))
+              .catch(() => {
+                /* clipboard denied — nothing sensible to do, fail silently */
+              });
+            onNavigate?.();
+          }}
+          role="menuitem"
+          className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm text-zinc-700 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white sm:hidden"
+        >
+          <UserPlus className="h-4 w-4 shrink-0" />
+          Inviter des amis
+        </button>
         <MenuLink
           href="/premium"
           icon={CreditCard}

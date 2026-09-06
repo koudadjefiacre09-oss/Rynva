@@ -1,5 +1,6 @@
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
+import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getProfile, type Profile } from "@/lib/profiles/get";
@@ -50,10 +51,11 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
           notifications={notifications}
           unreadNotificationsCount={unreadNotificationsCount}
         />
-        <main className="thin-scrollbar m-3 flex-1 overflow-y-auto rounded-3xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 lg:p-6">
+        <main className="thin-scrollbar m-3 flex-1 overflow-y-auto rounded-3xl border border-zinc-200 bg-white p-4 pb-24 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 lg:p-6">
           {children}
         </main>
       </div>
+      {user && <MobileBottomNav />}
     </div>
   );
 }
