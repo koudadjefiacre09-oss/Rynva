@@ -16,7 +16,8 @@ import {
 import { cn } from "@/lib/utils";
 import { logout } from "@/app/auth/actions";
 import { notifySuccess } from "@/lib/toast";
-import { initialsOf, type UserMenuUser } from "@/components/layout/user-menu";
+import { type UserMenuUser } from "@/components/layout/user-menu";
+import { initialsOf } from "@/lib/initials";
 import { useTheme, type Theme } from "@/components/theme/theme-provider";
 import type { Profile } from "@/lib/profiles/get";
 

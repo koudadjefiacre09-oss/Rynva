@@ -9,8 +9,6 @@ import type { Profile } from "@/lib/profiles/get";
 
 export type UserMenuUser = { id: string; name: string; email: string };
 
-export { initialsOf };
-
 /**
  * Avatar + dropdown menu (profile header, upgrade CTA, profile/billing/
  * settings/theme/logout — see AccountMenuContent for the shared body).

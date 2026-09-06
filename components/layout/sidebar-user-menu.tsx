@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { AccountMenuContent } from "@/components/layout/account-menu-content";
-import { initialsOf, type UserMenuUser } from "@/components/layout/user-menu";
+import { type UserMenuUser } from "@/components/layout/user-menu";
+import { initialsOf } from "@/lib/initials";
 import type { Profile } from "@/lib/profiles/get";
 
 /**
