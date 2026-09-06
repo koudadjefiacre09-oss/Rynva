@@ -3,9 +3,14 @@ export type AiCapability = "image" | "video" | "design" | "audio" | "chat";
 export interface ImageGenerationInput {
   prompt: string;
   aspectRatio?: "1:1" | "16:9" | "9:16" | "4:3";
+  /** How many variations to generate in one call (1-4, default 4). */
+  variations?: number;
 }
 export interface ImageGenerationOutput {
+  /** First image — kept for callers (design, character preview) that only ever want one. */
   url: string;
+  /** Every variation generated (length 1-4). `url` above is always `urls[0]`. */
+  urls: string[];
   prompt: string;
 }
 

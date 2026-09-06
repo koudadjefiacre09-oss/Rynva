@@ -56,7 +56,9 @@ export function CreateCharacterForm({ onCreated }: { onCreated: (character: Char
       const res = await fetch("/api/ai/image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, aspectRatio: "1:1" }),
+        // Only one portrait is ever used here — the main Image tool's default
+        // of 4 variations would be 4x the Replicate cost for 3 unused images.
+        body: JSON.stringify({ prompt, aspectRatio: "1:1", variations: 1 }),
       });
       const data = await res.json();
       if (!res.ok) {

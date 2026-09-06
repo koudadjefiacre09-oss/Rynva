@@ -59,9 +59,15 @@ function isFileOutput(value: unknown): value is ReplicateFileOutput {
 /** Normalize a prediction's `output` (a plain URL string, an array of them,
  * or occasionally a FileOutput-like object) to a single URL string. */
 function outputToUrl(output: unknown): string {
-  const first = Array.isArray(output) ? output[0] : output;
-  if (isFileOutput(first)) return String(first.url());
-  return String(first);
+  return outputToUrls(output)[0];
+}
+
+/** Same as outputToUrl, but keeps every item — flux-schnell returns one URL
+ * per requested `num_outputs`, and callers that ask for several variations
+ * (see generateImage's `variations` input) want all of them, not just the first. */
+function outputToUrls(output: unknown): string[] {
+  const items = Array.isArray(output) ? output : [output];
+  return items.map((item) => (isFileOutput(item) ? String(item.url()) : String(item)));
 }
 
 /**
@@ -130,11 +136,14 @@ export function createReplicateProvider(apiToken: string): AiProvider {
     name: "replicate",
 
     async generateImage(input: ImageGenerationInput): Promise<ImageGenerationOutput> {
+      const numOutputs = Math.min(4, Math.max(1, Math.round(input.variations ?? 4)));
       const output = await runModel(replicate, IMAGE_MODEL, {
         prompt: input.prompt,
         aspect_ratio: input.aspectRatio ?? "1:1",
+        num_outputs: numOutputs,
       });
-      return { url: outputToUrl(output), prompt: input.prompt };
+      const urls = outputToUrls(output);
+      return { url: urls[0], urls, prompt: input.prompt };
     },
 
     async generateDesign(input: DesignGenerationInput): Promise<DesignGenerationOutput> {
