@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Instrument_Sans, Instrument_Serif } from "next/font/google";
+import { Inter, Instrument_Serif } from "next/font/google";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { ThemeScript } from "@/components/theme/theme-script";
 import { Toaster } from "@/components/ui/toaster";
@@ -12,14 +12,9 @@ const inter = Inter({
   display: "swap",
 });
 
-// Landing page typography only — a geometric sans paired with a serif
-// italic accent (used for a single emphasised word in headings), matching
-// the editorial look requested for the marketing pages.
-const instrumentSans = Instrument_Sans({
-  subsets: ["latin"],
-  variable: "--font-display",
-  display: "swap",
-});
+// Secondary font — a serif italic accent used for a single emphasised word
+// in landing-page headings (see tailwind.config.ts's "display-serif" key).
+// Everything else on the site, including those same headings, is Inter.
 const instrumentSerif = Instrument_Serif({
   subsets: ["latin"],
   weight: "400",
@@ -58,7 +53,7 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      className={`${inter.variable} ${instrumentSans.variable} ${instrumentSerif.variable} scroll-smooth`}
+      className={`${inter.variable} ${instrumentSerif.variable} scroll-smooth`}
       suppressHydrationWarning
     >
       <body>

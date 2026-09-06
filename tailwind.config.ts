@@ -45,7 +45,13 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["var(--font-inter)", "Inter", "system-ui", "sans-serif"],
-        display: ["var(--font-display)", "var(--font-inter)", "system-ui", "sans-serif"],
+        // Was Instrument Sans (a separate geometric sans for landing-page
+        // headlines only) — now just Inter everywhere, so "display" and
+        // "sans" render identically. Kept as its own key rather than
+        // deleted so the 8+ components already using font-display don't
+        // need touching.
+        display: ["var(--font-inter)", "Inter", "system-ui", "sans-serif"],
+        // Secondary font — the italic serif accent word in headlines.
         "display-serif": ["var(--font-display-serif)", "Georgia", "serif"],
       },
       // 4/8px spacing scale additions beyond Tailwind defaults
