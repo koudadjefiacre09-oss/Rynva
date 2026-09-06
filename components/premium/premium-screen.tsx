@@ -11,6 +11,11 @@ import {
   Sparkles,
   Loader2,
   ArrowRight,
+  Lock,
+  CheckCircle2,
+  Smartphone,
+  Wallet,
+  type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { notifySuccess } from "@/lib/toast";
@@ -75,10 +80,16 @@ const PLANS: Plan[] = [
   },
 ];
 
-const GUARANTEES = [
-  { icon: "🔒", label: "Annulez à tout moment" },
-  { icon: "💳", label: "Paiement sécurisé" },
-  { icon: "✅", label: "Remboursé sous 7 jours" },
+const GUARANTEES: { icon: LucideIcon; label: string }[] = [
+  { icon: Lock, label: "Annulez à tout moment" },
+  { icon: CreditCard, label: "Paiement sécurisé" },
+  { icon: CheckCircle2, label: "Remboursé sous 7 jours" },
+];
+
+const PAYMENT_METHODS: { id: "apple" | "google" | "card"; label: string; icon: LucideIcon }[] = [
+  { id: "apple", label: "Apple Pay", icon: Smartphone },
+  { id: "google", label: "Google Pay", icon: Wallet },
+  { id: "card", label: "Carte", icon: CreditCard },
 ];
 
 const INPUT_CLASS =
@@ -134,7 +145,7 @@ export function PremiumScreen() {
           <Check className="h-9 w-9" strokeWidth={2.5} />
         </div>
         <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-white">
-          Welcome to Pro!
+          Bienvenue dans Pro !
         </h1>
         <p className="max-w-xs text-sm text-zinc-500">
           Votre abonnement est actif. 1 000 crédits ont été ajoutés à votre compte.
@@ -199,25 +210,20 @@ export function PremiumScreen() {
             Méthode de paiement
           </p>
           <div className="flex gap-2">
-            {(
-              [
-                { id: "apple", label: "Apple Pay", icon: "🍎" },
-                { id: "google", label: "Google Pay", icon: "G" },
-                { id: "card", label: "Carte", icon: "💳" },
-              ] as const
-            ).map((m) => (
+            {PAYMENT_METHODS.map((m) => (
               <button
                 key={m.id}
                 type="button"
                 onClick={() => setMethod(m.id)}
                 className={cn(
-                  "flex-1 rounded-xl border px-3 py-2.5 text-xs font-medium transition-colors",
+                  "flex flex-1 items-center justify-center gap-1.5 rounded-xl border px-3 py-2.5 text-xs font-medium transition-colors",
                   method === m.id
                     ? "border-transparent bg-zinc-900 text-white dark:bg-white dark:text-zinc-900"
                     : "border-zinc-200 text-zinc-600 hover:bg-zinc-50 dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-800"
                 )}
               >
-                {m.icon} {m.label}
+                <m.icon className="h-3.5 w-3.5" />
+                {m.label}
               </button>
             ))}
           </div>
@@ -233,9 +239,13 @@ export function PremiumScreen() {
             >
               <div className="mb-7 flex items-center justify-between">
                 <div className="h-7 w-10 rounded-md border border-amber-200/50 bg-amber-300/40" />
-                <span className="text-sm font-semibold text-white/80">
-                  {cardNumber.startsWith("4") ? "Visa" : cardNumber.startsWith("5") ? "Mastercard" : "💳"}
-                </span>
+                {cardNumber.startsWith("4") ? (
+                  <span className="text-sm font-semibold text-white/80">Visa</span>
+                ) : cardNumber.startsWith("5") ? (
+                  <span className="text-sm font-semibold text-white/80">Mastercard</span>
+                ) : (
+                  <CreditCard className="h-5 w-5 text-white/60" />
+                )}
               </div>
               <p className="mb-3.5 text-lg font-semibold tracking-widest">
                 {cardNumber || "•••• •••• •••• ••••"}
@@ -286,7 +296,9 @@ export function PremiumScreen() {
           </>
         ) : (
           <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-6 text-center dark:border-zinc-800 dark:bg-zinc-900">
-            <p className="mb-1 text-3xl">{method === "apple" ? "🍎" : "G"}</p>
+            <span className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-2xl bg-zinc-900 text-white dark:bg-white dark:text-zinc-900">
+              {method === "apple" ? <Smartphone className="h-5 w-5" /> : <Wallet className="h-5 w-5" />}
+            </span>
             <p className="text-sm font-medium text-zinc-900 dark:text-white">
               {method === "apple" ? "Apple Pay" : "Google Pay"}
             </p>
@@ -312,7 +324,7 @@ export function PremiumScreen() {
           className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-zinc-900 text-sm font-medium text-white transition-colors hover:bg-black disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
         >
           {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <CreditCard className="h-4 w-4" />}
-          {pending ? "Traitement…" : `Pay $${proPrice}.00`}
+          {pending ? "Traitement…" : `Payer ${proPrice} $`}
         </button>
       </div>
     );
@@ -462,7 +474,7 @@ export function PremiumScreen() {
             key={g.label}
             className="rounded-xl border border-zinc-200 bg-zinc-50 p-3 text-center dark:border-zinc-800 dark:bg-zinc-900"
           >
-            <p className="mb-1 text-lg">{g.icon}</p>
+            <g.icon className="mx-auto mb-1.5 h-4 w-4 text-zinc-400 dark:text-zinc-500" />
             <p className="text-[11px] font-medium text-zinc-500">{g.label}</p>
           </div>
         ))}
