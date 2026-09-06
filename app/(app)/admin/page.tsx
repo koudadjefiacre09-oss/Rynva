@@ -3,7 +3,7 @@ import { AlertTriangle } from "lucide-react";
 import { requireAdmin } from "@/lib/admin/auth";
 import { createAdminClient, isAdminConfigured } from "@/lib/supabase/admin";
 import { UserRowActions } from "@/components/admin/user-row-actions";
-import { initialsOf } from "@/components/layout/user-menu";
+import { initialsOf } from "@/lib/initials";
 import { TrafficSection } from "@/components/admin/traffic-section";
 import { ACTION_LABEL, type ActivityAction } from "@/lib/activity/log";
 import { getVisitStats } from "@/lib/visits/stats";

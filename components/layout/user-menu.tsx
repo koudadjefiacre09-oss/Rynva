@@ -4,21 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AccountMenuContent } from "@/components/layout/account-menu-content";
+import { initialsOf } from "@/lib/initials";
 import type { Profile } from "@/lib/profiles/get";
 
 export type UserMenuUser = { id: string; name: string; email: string };
 
-export function initialsOf(name: string) {
-  return (
-    name
-      .trim()
-      .split(/\s+/)
-      .map((part) => part[0])
-      .slice(0, 2)
-      .join("")
-      .toUpperCase() || "?"
-  );
-}
+export { initialsOf };
 
 /**
  * Avatar + dropdown menu (profile header, upgrade CTA, profile/billing/

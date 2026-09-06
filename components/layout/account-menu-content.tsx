@@ -150,13 +150,7 @@ export function AccountMenuContent({
         </div>
 
         {isAdmin && (
-          <MenuLink
-            href="/admin"
-            icon={ShieldCheck}
-            label="Administration"
-            onNavigate={onNavigate}
-            hardNav
-          />
+          <MenuLink href="/admin" icon={ShieldCheck} label="Administration" onNavigate={onNavigate} />
         )}
 
         <div className="my-1 h-px bg-zinc-100 dark:bg-zinc-800" />
@@ -181,33 +175,20 @@ function MenuLink({
   label,
   trailing,
   onNavigate,
-  hardNav = false,
 }: {
   href: string;
   icon: React.ComponentType<{ className?: string }>;
   label: string;
   trailing?: React.ReactNode;
   onNavigate?: () => void;
-  /** Force a full page reload instead of Next's client-side transition.
-   * Used for /admin: its RSC payload can crash on a soft navigation even
-   * though a direct/hard load renders fine, so a plain <a> sidesteps it. */
-  hardNav?: boolean;
 }) {
-  const className =
-    "flex items-center gap-2.5 px-4 py-2.5 text-sm text-zinc-700 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white";
-
-  if (hardNav) {
-    return (
-      <a href={href} role="menuitem" onClick={onNavigate} className={className}>
-        <Icon className="h-4 w-4 shrink-0" />
-        <span className="flex-1">{label}</span>
-        {trailing}
-      </a>
-    );
-  }
-
   return (
-    <Link href={href} role="menuitem" onClick={onNavigate} className={className}>
+    <Link
+      href={href}
+      role="menuitem"
+      onClick={onNavigate}
+      className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-zinc-700 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white"
+    >
       <Icon className="h-4 w-4 shrink-0" />
       <span className="flex-1">{label}</span>
       {trailing}
