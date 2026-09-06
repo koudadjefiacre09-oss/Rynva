@@ -5,6 +5,7 @@ import {
   isOpenAiConfigured,
 } from "@/lib/ai/config";
 import type { AiProvider } from "@/lib/ai/provider";
+import type { ChatCompletionInput, ChatCompletionOutput } from "@/lib/ai/types";
 import { createReplicateProvider } from "@/lib/ai/providers/replicate";
 import { createAnthropicProvider } from "@/lib/ai/providers/anthropic";
 import { createGrokProvider } from "@/lib/ai/providers/grok";
@@ -16,7 +17,13 @@ import { createOpenAiProvider } from "@/lib/ai/providers/openai";
  * providers later never touches route or UI code.
  *
  * RYNVA composes: Replicate for image/video/design/audio, and — for chat —
- * the first configured of Anthropic (Claude) > xAI (Grok) > OpenAI.
+ * Anthropic (Claude) > xAI (Grok) > OpenAI, tried in that order AT REQUEST
+ * TIME, not just picked once by which key is present. A configured key only
+ * proves the key exists, not that the account behind it can actually serve
+ * a request right now (found in practice: a correctly configured Grok key
+ * whose account had zero credits, returning 403 on every call — the old
+ * "first configured wins" logic had no way to notice and just kept failing
+ * instead of falling through to the working OpenAI key sitting right there).
  */
 export function getAiProvider(): AiProvider | null {
   if (!isReplicateConfigured && !isAnthropicConfigured && !isGrokConfigured && !isOpenAiConfigured) {
@@ -27,13 +34,29 @@ export function getAiProvider(): AiProvider | null {
     ? createReplicateProvider(process.env.REPLICATE_API_TOKEN!)
     : null;
 
-  const chatProvider = isAnthropicConfigured
-    ? createAnthropicProvider(process.env.ANTHROPIC_API_KEY!)
-    : isGrokConfigured
-      ? createGrokProvider(process.env.XAI_API_KEY!)
-      : isOpenAiConfigured
-        ? createOpenAiProvider(process.env.OPENAI_API_KEY!)
-        : null;
+  const chatChain: { name: string; provider: AiProvider }[] = [];
+  if (isAnthropicConfigured) {
+    chatChain.push({ name: "anthropic", provider: createAnthropicProvider(process.env.ANTHROPIC_API_KEY!) });
+  }
+  if (isGrokConfigured) {
+    chatChain.push({ name: "grok", provider: createGrokProvider(process.env.XAI_API_KEY!) });
+  }
+  if (isOpenAiConfigured) {
+    chatChain.push({ name: "openai", provider: createOpenAiProvider(process.env.OPENAI_API_KEY!) });
+  }
+
+  async function chatComplete(input: ChatCompletionInput): Promise<ChatCompletionOutput> {
+    let lastError: unknown;
+    for (const { name, provider } of chatChain) {
+      try {
+        return await provider.chatComplete!(input);
+      } catch (err) {
+        console.error(`[getAiProvider] chat provider "${name}" failed, trying next:`, err);
+        lastError = err;
+      }
+    }
+    throw lastError ?? new Error("Aucun fournisseur de chat configuré.");
+  }
 
   return {
     name: "rynva",
@@ -44,6 +67,6 @@ export function getAiProvider(): AiProvider | null {
     removeBackground: replicate?.removeBackground,
     enhancePhoto: replicate?.enhancePhoto,
     generateScene: replicate?.generateScene,
-    chatComplete: chatProvider?.chatComplete,
+    chatComplete: chatChain.length > 0 ? chatComplete : undefined,
   };
 }
