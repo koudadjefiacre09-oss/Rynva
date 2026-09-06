@@ -12,7 +12,14 @@ function welcomeEmailHtml(name: string) {
           <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:20px;overflow:hidden;">
             <tr>
               <td style="padding:32px 32px 0 32px;">
-                <span style="font-size:20px;font-weight:700;letter-spacing:-0.02em;color:#141412;">RYNVA</span>
+                <img
+                  src="https://rynva.app/logo-icon.png"
+                  width="28"
+                  height="28"
+                  alt="RYNVA"
+                  style="display:inline-block;vertical-align:middle;border-radius:6px;"
+                />
+                <span style="display:inline-block;vertical-align:middle;margin-left:8px;font-size:20px;font-weight:700;letter-spacing:-0.02em;color:#141412;">RYNVA</span>
               </td>
             </tr>
             <tr>
