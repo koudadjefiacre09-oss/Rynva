@@ -28,6 +28,17 @@ const IMAGE_MODEL = "black-forest-labs/flux-schnell";
 const VIDEO_MODEL = "wan-video/wan-2.7-t2v";
 const IMAGE_TO_VIDEO_MODEL = "wan-video/wan-2.7-i2v";
 const TTS_MODEL = "xai/grok-text-to-speech";
+// grok-text-to-speech only accepts these 5 fixed voice names — RYNVA's
+// /ai/audio style picker (Neutre/Chaleureuse/Énergique/Narration) sent its
+// own labels straight through, which the model rejects with a 422 for
+// anything but the literal string "eve". Mapped to the closest official
+// voice description (see the model's input schema) for each RYNVA style.
+const VOICE_BY_STYLE: Record<string, string> = {
+  neutral: "sal", // "smooth and balanced"
+  warm: "ara", // "warm and friendly"
+  energetic: "eve", // "energetic and upbeat" (also the model's own default)
+  narration: "rex", // "confident and clear"
+};
 const BG_REMOVE_MODEL_OWNER = "851-labs";
 const BG_REMOVE_MODEL_NAME = "background-remover";
 const UPSCALE_MODEL_OWNER = "nightmareai";
@@ -183,7 +194,7 @@ export function createReplicateProvider(apiToken: string): AiProvider {
     async generateAudio(input: AudioGenerationInput): Promise<AudioGenerationOutput> {
       const output = await runModel(replicate, TTS_MODEL, {
         text: input.prompt,
-        voice: input.voice && input.voice !== "neutral" ? input.voice : "eve",
+        voice: VOICE_BY_STYLE[input.voice ?? "neutral"] ?? "sal",
       });
       return { url: outputToUrl(output), prompt: input.prompt };
     },
