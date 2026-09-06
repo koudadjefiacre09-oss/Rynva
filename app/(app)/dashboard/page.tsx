@@ -1,11 +1,13 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Crown, ChevronRight } from "lucide-react";
+import { Crown, ChevronRight, Image as ImageIcon, Video } from "lucide-react";
 import { ProjectCard } from "@/components/gallery/project-card";
 import { CommandPalette } from "@/components/search/command-palette";
+import { WelcomeCreditsModal } from "@/components/dashboard/welcome-credits-modal";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { listGenerations, type GenerationWithUrl } from "@/lib/generations/list";
+import { getProfile, type Profile } from "@/lib/profiles/get";
 import { AI_TOOLS } from "@/lib/ai-tools";
 import { NAV_ACCENT, DEFAULT_NAV_ACCENT } from "@/lib/nav-colors";
 import { getGreeting } from "@/lib/greeting";
@@ -14,6 +16,7 @@ import { cn } from "@/lib/utils";
 export default async function DashboardPage() {
   let firstName = "";
   let recentProjects: GenerationWithUrl[] = [];
+  let profile: Profile | null = null;
 
   if (isSupabaseConfigured) {
     const supabase = await createClient();
@@ -25,16 +28,44 @@ export default async function DashboardPage() {
 
     if (user) {
       recentProjects = await listGenerations(user.id, 4);
+      profile = await getProfile(user.id);
     }
   }
 
+  // Metered accounts only: Pro and pre-trial-feature accounts have
+  // creditsExpireAt = null (see migration 0014) and never show this.
+  const isMetered = Boolean(profile && profile.plan !== "pro" && profile.creditsExpireAt);
+
   return (
     <div className="-m-4 min-h-[calc(100vh-4rem)] bg-white px-4 py-14 dark:bg-black lg:-m-6 lg:px-8">
+      {profile && !profile.welcomeShown && profile.plan !== "pro" && profile.creditsExpireAt && (
+        <WelcomeCreditsModal
+          imagesGranted={profile.imagesRemaining}
+          videosGranted={profile.videosRemaining}
+          expiresAt={profile.creditsExpireAt}
+        />
+      )}
+
       {/* Hero: greeting + big search bar + tool shortcuts — Magnific-style launcher. */}
       <div className="mx-auto flex max-w-3xl flex-col items-center gap-7 text-center">
         <h1 className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-white">
           {getGreeting(firstName)}
         </h1>
+
+        {isMetered && profile && (
+          <div className="flex flex-wrap items-center justify-center gap-2 text-xs font-medium text-zinc-500">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-zinc-200 px-3 py-1.5 dark:border-zinc-800">
+              <ImageIcon className="h-3.5 w-3.5 text-brand-purple" />
+              {profile.imagesRemaining} image{profile.imagesRemaining !== 1 ? "s" : ""} restante
+              {profile.imagesRemaining !== 1 ? "s" : ""}
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-zinc-200 px-3 py-1.5 dark:border-zinc-800">
+              <Video className="h-3.5 w-3.5 text-brand-purple" />
+              {profile.videosRemaining} vidéo{profile.videosRemaining !== 1 ? "s" : ""} restante
+              {profile.videosRemaining !== 1 ? "s" : ""}
+            </span>
+          </div>
+        )}
 
         <div className="w-full max-w-xl">
           <CommandPalette size="lg" recentGenerations={recentProjects} />

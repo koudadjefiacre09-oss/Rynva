@@ -89,11 +89,16 @@ const config: Config = {
           "0%": { transform: "translateX(0)" },
           "100%": { transform: "translateX(-50%)" },
         },
+        "confetti-fall": {
+          "0%": { transform: "translateY(-10vh) rotate(0deg)", opacity: "1" },
+          "100%": { transform: "translateY(110vh) rotate(720deg)", opacity: "0.9" },
+        },
       },
       animation: {
         "fade-up": "fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards",
         shimmer: "shimmer 2.5s linear infinite",
         marquee: "marquee 32s linear infinite",
+        "confetti-fall": "confetti-fall linear forwards",
       },
     },
   },

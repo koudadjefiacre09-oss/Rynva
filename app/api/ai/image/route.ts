@@ -5,6 +5,7 @@ import { AI_CONFIG_ERROR } from "@/lib/ai/config";
 import { resolveUser } from "@/lib/ai/route-helpers";
 import { saveGeneration } from "@/lib/generations/save";
 import { logActivity } from "@/lib/activity/log";
+import { checkCreditQuota, consumeCredit } from "@/lib/credits/gate";
 
 const bodySchema = z.object({
   prompt: z.string().min(3, "Décrivez ce que vous voulez générer.").max(4000),
@@ -29,6 +30,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: AI_CONFIG_ERROR }, { status: 501 });
   }
 
+  if (userId) {
+    const quota = await checkCreditQuota(userId, "image");
+    if (!quota.allowed) {
+      return NextResponse.json({ error: quota.reason }, { status: 403 });
+    }
+  }
+
   try {
     const result = await provider.generateImage(parsed.data);
     let generationId: string | undefined;
@@ -47,7 +55,10 @@ export async function POST(request: Request) {
       }
     }
 
-    if (userId) await logActivity(userId, "image", "success");
+    if (userId) {
+      await logActivity(userId, "image", "success");
+      await consumeCredit(userId, "image");
+    }
     return NextResponse.json({ ...result, generationId });
   } catch (err) {
     console.error("[api/ai/image]", err);

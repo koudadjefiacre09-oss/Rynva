@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
-import { CreditCard, UserPlus } from "lucide-react";
+import { CreditCard, UserPlus, Image as ImageIcon, Video } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ProfileForm } from "@/components/profile/profile-form";
 import { AvatarUploader } from "@/components/profile/avatar-uploader";
@@ -36,6 +37,11 @@ export default async function ProfilePage() {
     new Date(user.created_at)
   );
   const invitedCount = await getInvitedCount(user.id);
+  // Pro and pre-trial-feature accounts have creditsExpireAt = null (migration 0014) and are unmetered.
+  const isMetered = profile.plan !== "pro" && Boolean(profile.creditsExpireAt);
+  const expiryLabel = profile.creditsExpireAt
+    ? new Intl.DateTimeFormat("fr-FR", { dateStyle: "long" }).format(new Date(profile.creditsExpireAt))
+    : "";
 
   return (
     <div className="-m-4 min-h-[calc(100vh-4rem)] bg-white px-4 py-10 dark:bg-black lg:-m-6 lg:px-8">
@@ -99,6 +105,34 @@ export default async function ProfilePage() {
               </div>
               <p className="mt-2 text-xs text-zinc-500">Membre depuis le {memberSince}</p>
             </section>
+
+            {isMetered && (
+              <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none sm:p-6">
+                <h2 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                  Essai gratuit
+                </h2>
+                <div className="mt-4 grid grid-cols-2 gap-3">
+                  <div className="flex items-center gap-2">
+                    <ImageIcon className="h-4 w-4 shrink-0 text-zinc-400" />
+                    <p className="text-sm text-zinc-900 dark:text-white">
+                      {profile.imagesRemaining} image{profile.imagesRemaining !== 1 ? "s" : ""}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Video className="h-4 w-4 shrink-0 text-zinc-400" />
+                    <p className="text-sm text-zinc-900 dark:text-white">
+                      {profile.videosRemaining} vidéo{profile.videosRemaining !== 1 ? "s" : ""}
+                    </p>
+                  </div>
+                </div>
+                <p className="mt-3 text-xs text-zinc-500">
+                  Valable jusqu&rsquo;au {expiryLabel}.{" "}
+                  <Link href="/premium" className="font-medium text-brand-purple hover:underline">
+                    Passer à RYNVA Pro
+                  </Link>
+                </p>
+              </section>
+            )}
 
             <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none sm:p-6">
               <h2 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">

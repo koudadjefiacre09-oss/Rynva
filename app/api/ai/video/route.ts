@@ -5,6 +5,7 @@ import { AI_CONFIG_ERROR } from "@/lib/ai/config";
 import { resolveUser } from "@/lib/ai/route-helpers";
 import { saveGeneration } from "@/lib/generations/save";
 import { logActivity } from "@/lib/activity/log";
+import { checkCreditQuota, consumeCredit } from "@/lib/credits/gate";
 
 const bodySchema = z.object({
   prompt: z.string().min(3, "Décrivez la vidéo que vous voulez générer.").max(4000),
@@ -33,6 +34,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: AI_CONFIG_ERROR }, { status: 501 });
   }
 
+  if (userId) {
+    const quota = await checkCreditQuota(userId, "video");
+    if (!quota.allowed) {
+      return NextResponse.json({ error: quota.reason }, { status: 403 });
+    }
+  }
+
   try {
     const result = await provider.generateVideo({
       prompt: parsed.data.prompt,
@@ -56,7 +64,10 @@ export async function POST(request: Request) {
       if (saved) result.url = saved.url;
     }
 
-    if (userId) await logActivity(userId, "video", "success");
+    if (userId) {
+      await logActivity(userId, "video", "success");
+      await consumeCredit(userId, "video");
+    }
     return NextResponse.json(result);
   } catch (err) {
     console.error("[api/ai/video]", err);
