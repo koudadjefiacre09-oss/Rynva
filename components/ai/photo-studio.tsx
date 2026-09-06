@@ -10,6 +10,19 @@ const MAX_FILE_BYTES = 10 * 1024 * 1024; // 10MB
 
 type Tool = "bg-remove" | "hd-enhance";
 
+const TOOL_INFO: Record<Tool, { icon: typeof Eraser; title: string; description: string }> = {
+  "bg-remove": {
+    icon: Eraser,
+    title: "Enlever le fond",
+    description: "Supprimez l'arrière-plan de vos photos en un clic.",
+  },
+  "hd-enhance": {
+    icon: Sparkles,
+    title: "Améliorer la qualité (HD)",
+    description: "Passez vos photos en haute définition, jusqu'à 4x plus nette.",
+  },
+};
+
 const TRANSPARENT_BG_STYLE: React.CSSProperties = {
   backgroundImage:
     "linear-gradient(45deg, rgb(var(--color-checker)) 25%, transparent 25%), linear-gradient(-45deg, rgb(var(--color-checker)) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, rgb(var(--color-checker)) 75%), linear-gradient(-45deg, transparent 75%, rgb(var(--color-checker)) 75%)",
@@ -232,7 +245,23 @@ export function PhotoStudio() {
         </div>
 
         {/* Result canvas */}
-        <div className="flex min-h-[420px] flex-col items-center justify-center rounded-3xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900 lg:min-h-[600px]">
+        <div className="flex min-h-[420px] flex-col items-center gap-6 rounded-3xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900 lg:min-h-[600px]">
+          {/* Tool header — switches with the Fond/HD toggle, so the panel
+              always states which treatment is about to run, not just once
+              a photo is loaded. */}
+          <div className="flex flex-col items-center gap-2 text-center">
+            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-brand text-white">
+              {(() => {
+                const Icon = TOOL_INFO[tool].icon;
+                return <Icon className="h-5 w-5" />;
+              })()}
+            </span>
+            <h2 className="text-base font-semibold text-zinc-900 dark:text-white">
+              {TOOL_INFO[tool].title}
+            </h2>
+            <p className="max-w-xs text-xs text-zinc-500">{TOOL_INFO[tool].description}</p>
+          </div>
+
           {!preview ? (
             <button
               type="button"
