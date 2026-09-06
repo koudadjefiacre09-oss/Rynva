@@ -66,7 +66,7 @@ function connectorPath(tx: number, ty: number) {
 
 export function ToolsTeaser() {
   return (
-    <section id="fonctionnalites" className="relative scroll-mt-24 bg-cream px-6 py-24">
+    <section id="fonctionnalites" className="relative scroll-mt-24 bg-white px-6 py-24">
       <div className="mx-auto max-w-6xl">
         <motion.div
           initial={{ opacity: 0, y: 16 }}

@@ -80,7 +80,7 @@ export async function SiteHeader() {
                 </Button>
               </Link>
               <Link href="/register">
-                <Button size="sm" className="gap-1 rounded-full bg-ink font-semibold text-white hover:brightness-110">
+                <Button size="sm" className="gap-1 rounded-full bg-brand-blue font-semibold text-white hover:brightness-110">
                   Commencer
                   <ArrowUpRight className="h-3.5 w-3.5" />
                 </Button>

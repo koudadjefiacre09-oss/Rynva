@@ -66,15 +66,8 @@ export function UserMenu({
             initialsOf(user.name)
           )}
         </span>
-        {/* Name + email stacked, visible at a glance without opening the
-            menu — email used to only show as a title-attribute tooltip. */}
-        <span className="hidden max-w-[160px] flex-col items-start sm:flex">
-          <span className="w-full truncate text-sm font-medium text-zinc-700 dark:text-zinc-300">
-            {user.name}
-          </span>
-          <span className="w-full truncate text-xs text-zinc-400 dark:text-zinc-500">
-            {user.email}
-          </span>
+        <span className="hidden max-w-[140px] truncate text-sm font-medium text-zinc-700 dark:text-zinc-300 sm:inline">
+          {user.name}
         </span>
         <ChevronDown
           className={cn(

@@ -44,7 +44,7 @@ export function PricingTeaser() {
   const [annual, setAnnual] = useState(false);
 
   return (
-    <section id="tarifs" className="relative scroll-mt-24 border-t border-ink/10 bg-cream px-6 py-24">
+    <section id="tarifs" className="relative scroll-mt-24 border-t border-ink/10 bg-white px-6 py-24">
       <div className="relative mx-auto max-w-5xl">
         <motion.div
           initial={{ opacity: 0, y: 16 }}

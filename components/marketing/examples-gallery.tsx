@@ -47,7 +47,7 @@ const examples = [
 
 export function ExamplesGallery() {
   return (
-    <section id="exemples" className="relative scroll-mt-24 border-t border-ink/10 bg-cream px-6 py-24">
+    <section id="exemples" className="relative scroll-mt-24 border-t border-ink/10 bg-white px-6 py-24">
       <div className="mx-auto max-w-6xl">
         <motion.div
           initial={{ opacity: 0, y: 16 }}

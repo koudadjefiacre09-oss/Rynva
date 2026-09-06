@@ -59,7 +59,7 @@ export function Hero() {
   const row = [...showcase, ...showcase];
 
   return (
-    <section className="relative overflow-hidden bg-cream pb-24 pt-40">
+    <section className="relative overflow-hidden bg-white pb-24 pt-40">
       <motion.div
         initial="hidden"
         animate="show"
@@ -103,7 +103,7 @@ export function Hero() {
           <Link href="/register">
             <Button
               size="lg"
-              className="gap-1.5 rounded-full bg-ink font-semibold text-white transition-transform hover:scale-[1.03] hover:brightness-110 py-2"
+              className="gap-1.5 rounded-full bg-brand-blue font-semibold text-white transition-transform hover:scale-[1.03] hover:brightness-110 py-2"
             >
               Commencer gratuitement
               <ArrowUpRight className="h-4 w-4" />

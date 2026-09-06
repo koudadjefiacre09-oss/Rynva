@@ -12,7 +12,7 @@ export default function LandingPage() {
     // Fixed light editorial design (warm off-white + ink), not theme-toggled
     // like the authenticated app — same reasoning as the previous dark
     // version, just a different fixed palette.
-    <div className="min-h-screen bg-cream font-display text-ink">
+    <div className="min-h-screen bg-white font-display text-ink">
       <SiteHeader />
       <Hero />
       <StatsSection />

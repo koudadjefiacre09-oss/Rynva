@@ -35,7 +35,7 @@ function StatValue({ value, suffix }: { value: number; suffix: string }) {
 
 export function StatsSection() {
   return (
-    <section className="border-y border-ink/10 bg-cream">
+    <section className="border-y border-ink/10 bg-white">
       <div className="mx-auto grid max-w-6xl grid-cols-2 divide-x divide-y divide-ink/10 sm:grid-cols-4 sm:divide-y-0">
         {stats.map((stat, i) => (
           <motion.div
