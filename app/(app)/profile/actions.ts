@@ -69,6 +69,15 @@ export async function uploadAvatar(formData: FormData): Promise<UploadAvatarResu
   const admin = createAdminClient();
   const path = `${user.id}/avatar.${extension}`;
 
+  // upsert only overwrites a file at the exact same path — switching format
+  // (e.g. a JPG avatar replaced by a PNG one) leaves the old file behind
+  // under its own extension forever, since the path includes it. Clear out
+  // every other extension for this user before uploading the new one.
+  const otherExtensions = Object.values(EXTENSION_BY_MIME).filter((ext) => ext !== extension);
+  if (otherExtensions.length > 0) {
+    await admin.storage.from("avatars").remove(otherExtensions.map((ext) => `${user.id}/avatar.${ext}`));
+  }
+
   // Uploading the File/Blob directly (instead of its raw ArrayBuffer) makes
   // storage-js send it as multipart/form-data, where the content-type rides
   // along as part of that form field instead of being hand-assigned to a

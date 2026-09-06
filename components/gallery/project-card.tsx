@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Download, Sparkles, Trash2, UserPlus, Check, X, Star, RotateCcw } from "lucide-react";
+import { Download, Sparkles, Trash2, UserPlus, Check, X, Star, RotateCcw, Maximize2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatRelativeTime } from "@/lib/format-relative-time";
 import type { GenerationWithUrl } from "@/lib/generations/list";
@@ -30,6 +30,10 @@ export const ANIMATABLE: GenerationType[] = [
 // Types that make sense as the reference image of a single reusable
 // character — a multi-person "scene" is excluded, it isn't one consistent face.
 const CAN_BECOME_CHARACTER: GenerationType[] = ["image", "design", "photo-bg-remove", "photo-enhance"];
+
+// Still-image types only — video already has its own inline player controls
+// (clicking to enlarge would fight with play/pause), audio has no visual to enlarge.
+const LIGHTBOX_TYPES: GenerationType[] = ["image", "design", "photo-bg-remove", "photo-enhance", "scene"];
 
 // Shared style for the small action pills (Télécharger, Animer, Personnage) —
 // contrasted border + text so they stay legible in both themes.
@@ -67,6 +71,7 @@ export function ProjectCard({
   /** Called after a successful restore or permanent delete, so the trash grid can drop the card. */
   onRemoveFromTrash?: (id: string) => void;
 }) {
+  const [lightboxOpen, setLightboxOpen] = useState(false);
   const [deleted, setDeleted] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [restoring, setRestoring] = useState(false);
@@ -77,6 +82,15 @@ export function ProjectCard({
   const [charSaving, setCharSaving] = useState(false);
   const [charSaved, setCharSaved] = useState(false);
   const [charError, setCharError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setLightboxOpen(false);
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [lightboxOpen]);
 
   if (deleted) return null;
 
@@ -172,8 +186,22 @@ export function ProjectCard({
 
   return (
     <div className="flex flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
-      <div className="relative aspect-square w-full bg-zinc-100 dark:bg-zinc-800">
-        <Media item={item} />
+      <div className="group relative aspect-square w-full bg-zinc-100 dark:bg-zinc-800">
+        {LIGHTBOX_TYPES.includes(item.type) ? (
+          <button
+            type="button"
+            onClick={() => setLightboxOpen(true)}
+            aria-label="Agrandir"
+            className="block h-full w-full"
+          >
+            <Media item={item} />
+            <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/0 transition-colors group-hover:bg-black/20">
+              <Maximize2 className="h-6 w-6 text-white opacity-0 transition-opacity group-hover:opacity-100" />
+            </span>
+          </button>
+        ) : (
+          <Media item={item} />
+        )}
         {variant === "default" && (
           <button
             type="button"
@@ -291,6 +319,26 @@ export function ProjectCard({
           </div>
         )}
       </div>
+
+      {lightboxOpen && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/80" onClick={() => setLightboxOpen(false)} />
+          <button
+            type="button"
+            onClick={() => setLightboxOpen(false)}
+            aria-label="Retour"
+            className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur transition-colors hover:bg-white/20"
+          >
+            <X className="h-5 w-5" />
+          </button>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={item.url}
+            alt={item.prompt ?? TYPE_LABEL[item.type]}
+            className="relative max-h-[90vh] max-w-[90vw] rounded-2xl object-contain shadow-2xl"
+          />
+        </div>
+      )}
     </div>
   );
 }
