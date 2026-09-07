@@ -10,7 +10,7 @@ import { checkCreditQuota, consumeCredit } from "@/lib/credits/gate";
 const bodySchema = z.object({
   prompt: z.string().min(3, "Décrivez la vidéo que vous voulez générer.").max(4000),
   durationSeconds: z.coerce.number().int().min(2).max(15).optional(),
-  resolution: z.enum(["480p", "720p", "1080p"]).optional(),
+  resolution: z.enum(["720p", "1080p"]).optional(),
   // When set, animates this existing image instead of generating from text alone.
   sourceImageUrl: z.string().url().optional(),
   sourceGenerationId: z.string().uuid().optional(),
@@ -85,7 +85,7 @@ export async function GET(request: Request) {
   }
   const sourceGenerationId = url.searchParams.get("sourceGenerationId") ?? undefined;
   const resolutionParam = url.searchParams.get("resolution");
-  const resolution = resolutionParam === "480p" || resolutionParam === "1080p" ? resolutionParam : "720p";
+  const resolution = resolutionParam === "1080p" ? resolutionParam : "720p";
   const animatedFromImage = url.searchParams.get("animated") === "true";
 
   const provider = getAiProvider();

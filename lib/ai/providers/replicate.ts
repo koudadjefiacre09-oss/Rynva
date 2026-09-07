@@ -176,11 +176,9 @@ export function createReplicateProvider(apiToken: string): AiProvider {
     // prediction here and let the caller poll checkVideoGeneration.
     async startVideoGeneration(input: VideoGenerationInput): Promise<VideoJobHandle> {
       const duration = input.durationSeconds ?? 5;
-      // 720p default — cheaper/faster than the model's 1080p default. The
-      // resolution picker in the UI now overrides this; "480p"/"1080p" are
-      // assumed valid enum values for wan-2.7 but weren't individually
-      // confirmed against the model's Replicate page — verify if either
-      // starts erroring.
+      // 720p default — cheaper/faster than the model's 1080p default. wan-2.7
+      // only accepts 720p/1080p (verified against the model's Replicate
+      // schema) — there's no 480p to fall back to.
       const resolution = input.resolution ?? "720p";
       const prediction = input.sourceImageUrl
         ? await replicate.predictions.create({

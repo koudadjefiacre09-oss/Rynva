@@ -17,7 +17,7 @@ export interface ImageGenerationOutput {
 export interface VideoGenerationInput {
   prompt: string;
   durationSeconds?: number;
-  resolution?: "480p" | "720p" | "1080p";
+  resolution?: "720p" | "1080p";
   /** When set, animates this existing image instead of generating from text alone. */
   sourceImageUrl?: string;
 }

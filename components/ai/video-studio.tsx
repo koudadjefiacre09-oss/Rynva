@@ -233,7 +233,10 @@ function AnimateFromImage({
 
 // ── Text-to-video (default /ai/video flow) ─────────────────────────────────
 
-const RESOLUTIONS = ["480p", "720p", "1080p"] as const;
+// 480p isn't in wan-2.7's actual resolution enum (verified against the
+// model's Replicate schema — only 720p/1080p exist) — offering it here
+// would just error at generation time.
+const RESOLUTIONS = ["720p", "1080p"] as const;
 type Resolution = (typeof RESOLUTIONS)[number];
 
 const BAR_DURATIONS = ["6", "10", "15"] as const;
