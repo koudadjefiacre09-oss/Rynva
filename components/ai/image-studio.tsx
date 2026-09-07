@@ -6,6 +6,7 @@ import {
   ArrowUp,
   Bookmark,
   Check,
+  ChevronDown,
   Download,
   Grid2x2,
   ImageIcon,
@@ -32,6 +33,11 @@ const ASPECT_RATIOS = [
   { value: "9:16", label: "Portrait" },
   { value: "4:3", label: "Standard" },
 ] as const;
+
+// flux-schnell genuinely supports 1-4 outputs per call (see lib/ai/providers
+// /replicate.ts) — unlike the reference's Steps/Style sliders, which don't
+// map to anything this model exposes, so those aren't reproduced here.
+const VARIATION_COUNTS = [1, 2, 3, 4] as const;
 
 const SUGGESTIONS = [
   "Un renard bleu néon dans une forêt cyberpunk, style illustration digitale",
@@ -66,6 +72,7 @@ export function ImageStudio({ initialPresets = [] }: { initialPresets?: PromptPr
   const [prompt, setPrompt] = useState("");
   const [aspectRatio, setAspectRatio] =
     useState<(typeof ASPECT_RATIOS)[number]["value"]>("1:1");
+  const [variations, setVariations] = useState<(typeof VARIATION_COUNTS)[number]>(4);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ImageResult | null>(null);
@@ -88,7 +95,7 @@ export function ImageStudio({ initialPresets = [] }: { initialPresets?: PromptPr
       const res = await fetch("/api/ai/image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, aspectRatio }),
+        body: JSON.stringify({ prompt, aspectRatio, variations }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -134,7 +141,7 @@ export function ImageStudio({ initialPresets = [] }: { initialPresets?: PromptPr
 
   return (
     <div className="-m-4 min-h-[calc(100vh-4rem)] bg-zinc-50 px-4 py-8 dark:bg-zinc-950 lg:-m-6 lg:px-8">
-      <div className="mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[380px_1fr] lg:items-start">
+      <div className="mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[440px_1fr] lg:items-start">
         {/* Settings panel */}
         <div className="flex flex-col gap-6 rounded-3xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
           <div>
@@ -160,25 +167,21 @@ export function ImageStudio({ initialPresets = [] }: { initialPresets?: PromptPr
               maxLength={4000}
               className="resize-none bg-transparent px-1 pt-1 text-sm text-zinc-900 placeholder:text-zinc-400 focus-visible:outline-none dark:text-white dark:placeholder:text-zinc-500"
             />
-            <div className="flex flex-wrap items-center justify-between gap-2 px-1 pb-1">
-              <div className="flex flex-wrap gap-1.5">
-                {ASPECT_RATIOS.map((ratio) => (
-                  <button
-                    key={ratio.value}
-                    type="button"
-                    onClick={() => setAspectRatio(ratio.value)}
-                    className={cn(
-                      "rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors",
-                      aspectRatio === ratio.value
-                        ? "border-zinc-300 bg-white text-zinc-900 dark:border-zinc-600 dark:bg-zinc-700 dark:text-white"
-                        : "border-zinc-200 text-zinc-500 hover:border-zinc-300 hover:text-zinc-700 dark:border-zinc-700 dark:text-zinc-500 dark:hover:text-zinc-300"
-                    )}
-                  >
-                    {ratio.label}
-                  </button>
-                ))}
-              </div>
-              <div className="flex items-center gap-1.5">
+            <div className="flex flex-wrap items-center gap-1.5 border-t border-zinc-200 px-1 pb-1 pt-2 dark:border-zinc-700/60">
+              <PillSelect
+                label="Format"
+                value={aspectRatio}
+                onChange={(v) => setAspectRatio(v as (typeof ASPECT_RATIOS)[number]["value"])}
+                options={ASPECT_RATIOS.map((r) => ({ value: r.value, display: r.label }))}
+              />
+              <PillSelect
+                label="Variations"
+                value={String(variations)}
+                onChange={(v) => setVariations(Number(v) as (typeof VARIATION_COUNTS)[number])}
+                options={VARIATION_COUNTS.map((n) => ({ value: String(n), display: String(n) }))}
+              />
+
+              <div className="ml-auto flex items-center gap-1.5">
                 <button
                   type="button"
                   onClick={() => {
@@ -187,22 +190,23 @@ export function ImageStudio({ initialPresets = [] }: { initialPresets?: PromptPr
                   }}
                   disabled={!prompt.trim()}
                   title="Enregistrer ce prompt"
-                  aria-label="Enregistrer ce prompt"
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-zinc-200 text-zinc-500 transition-colors hover:border-zinc-300 hover:text-zinc-900 disabled:cursor-not-allowed disabled:opacity-40 dark:border-zinc-700 dark:text-zinc-400 dark:hover:text-white"
+                  className="flex h-9 items-center gap-1.5 rounded-full border border-zinc-200 px-3 text-xs font-medium text-zinc-600 transition-colors hover:border-zinc-300 hover:text-zinc-900 disabled:cursor-not-allowed disabled:opacity-40 dark:border-zinc-700 dark:text-zinc-400 dark:hover:text-white"
                 >
-                  <Bookmark className="h-4 w-4" />
+                  <Bookmark className="h-3.5 w-3.5" />
+                  Enregistrer
                 </button>
                 <button
                   type="submit"
                   disabled={!prompt.trim() || loading}
                   aria-label="Générer"
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-zinc-900 text-white transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:bg-zinc-300 disabled:text-zinc-500 dark:bg-white dark:text-zinc-900 dark:disabled:bg-zinc-700 dark:disabled:text-zinc-500"
+                  className="flex h-9 items-center gap-1.5 rounded-full bg-zinc-900 px-3.5 text-xs font-medium text-white transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:bg-zinc-300 disabled:text-zinc-500 dark:bg-white dark:text-zinc-900 dark:disabled:bg-zinc-700 dark:disabled:text-zinc-500"
                 >
                   {loading ? (
-                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white dark:border-zinc-900/30 dark:border-t-zinc-900" />
+                    <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white dark:border-zinc-900/30 dark:border-t-zinc-900" />
                   ) : (
-                    <ArrowUp className="h-4 w-4" />
+                    <ArrowUp className="h-3.5 w-3.5" />
                   )}
+                  Générer (1 crédit)
                 </button>
               </div>
             </div>
@@ -433,6 +437,43 @@ function ResultActions({
         <Sparkles className="h-3.5 w-3.5" />
         Animer
       </Link>
+    </div>
+  );
+}
+
+/**
+ * A native <select> styled as a rounded pill with a label + current value +
+ * chevron (e.g. "Format Carré ⌄") — the composer-bar look from the
+ * reference, applied to the two settings that are actually real (aspect
+ * ratio, variation count). A plain <select> keeps this keyboard/screen-
+ * reader accessible for free instead of building a custom listbox.
+ */
+function PillSelect({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  options: { value: string; display: string }[];
+}) {
+  return (
+    <div className="relative">
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        aria-label={label}
+        className="peer appearance-none rounded-full border border-zinc-200 bg-white py-1 pl-2.5 pr-6 text-[11px] font-medium text-zinc-700 focus-visible:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300"
+      >
+        {options.map((opt) => (
+          <option key={opt.value} value={opt.value}>
+            {label} {opt.display}
+          </option>
+        ))}
+      </select>
+      <ChevronDown className="pointer-events-none absolute right-1.5 top-1/2 h-3 w-3 -translate-y-1/2 text-zinc-400 peer-focus-visible:text-zinc-600" />
     </div>
   );
 }
