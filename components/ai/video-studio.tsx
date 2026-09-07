@@ -25,6 +25,58 @@ const DURATIONS = [
   { value: "15", label: "15 secondes" },
 ] as const;
 
+// Video generation (wan-2.7 on Replicate) routinely takes 5-7+ minutes —
+// see app/api/ai/video/route.ts — so /api/ai/video's POST returns a jobId
+// immediately instead of the finished video. This polls GET on that jobId
+// until it resolves. HTTP-level failures (network blip, Replicate hiccup)
+// are retried a few times before giving up — they don't necessarily mean
+// the job itself failed, just that this particular check did.
+const POLL_INTERVAL_MS = 4000;
+const MAX_POLL_ATTEMPTS = 150; // ~10 minutes at 4s/poll
+const MAX_TRANSIENT_RETRIES = 5;
+
+async function pollVideoJob(
+  jobId: string,
+  params: { sourceGenerationId?: string; resolution?: string; animated?: boolean }
+): Promise<VideoResult> {
+  const qs = new URLSearchParams({ jobId });
+  if (params.sourceGenerationId) qs.set("sourceGenerationId", params.sourceGenerationId);
+  if (params.resolution) qs.set("resolution", params.resolution);
+  if (params.animated) qs.set("animated", "true");
+
+  let transientErrors = 0;
+  for (let attempt = 0; attempt < MAX_POLL_ATTEMPTS; attempt++) {
+    await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
+
+    let res: Response;
+    try {
+      res = await fetch(`/api/ai/video?${qs.toString()}`);
+    } catch {
+      if (++transientErrors > MAX_TRANSIENT_RETRIES) {
+        throw new Error("Impossible de contacter le serveur.");
+      }
+      continue;
+    }
+
+    if (!res.ok) {
+      if (++transientErrors > MAX_TRANSIENT_RETRIES) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error ?? "La génération a échoué. Réessayez.");
+      }
+      continue;
+    }
+
+    const data = await res.json();
+    if (data.status === "processing") continue;
+    if (data.status === "failed") {
+      throw new Error(data.error ?? "La génération a échoué. Réessayez.");
+    }
+    return { url: data.url, prompt: data.prompt };
+  }
+
+  throw new Error("La génération prend plus de temps que prévu. Réessayez plus tard.");
+}
+
 function AnimateFromImage({
   sourceImageUrl,
   sourceGenerationId,
@@ -52,14 +104,15 @@ function AnimateFromImage({
         body: JSON.stringify({ prompt, durationSeconds, sourceImageUrl, sourceGenerationId }),
       });
       const data = await res.json();
-      if (!res.ok) {
+      if (!res.ok || !data.jobId) {
         setError(data.error ?? "Une erreur est survenue.");
-      } else {
-        setResult(data);
-        notifySuccess("Votre vidéo est prête !");
+        return;
       }
-    } catch {
-      setError("Impossible de contacter le serveur.");
+      const final = await pollVideoJob(data.jobId, { sourceGenerationId, animated: true });
+      setResult(final);
+      notifySuccess("Votre vidéo est prête !");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Impossible de contacter le serveur.");
     } finally {
       setLoading(false);
     }
@@ -150,6 +203,7 @@ function AnimateFromImage({
             <div className="flex flex-col items-center gap-3 text-zinc-400 dark:text-zinc-500">
               <span className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-200 border-t-zinc-500 dark:border-zinc-800 dark:border-t-zinc-400" />
               <p className="text-sm">Animation en cours...</p>
+              <p className="text-xs">Ça peut prendre plusieurs minutes, restez sur cette page.</p>
             </div>
           ) : result ? (
             <div className="flex w-full max-w-lg flex-col items-center gap-4">
@@ -282,14 +336,15 @@ function TextToVideo() {
         body: JSON.stringify({ prompt, durationSeconds: duration, resolution }),
       });
       const data = await res.json();
-      if (!res.ok) {
+      if (!res.ok || !data.jobId) {
         setError(data.error ?? "Une erreur est survenue.");
-      } else {
-        setResult(data);
-        notifySuccess("Votre vidéo est prête !");
+        return;
       }
-    } catch {
-      setError("Impossible de contacter le serveur.");
+      const final = await pollVideoJob(data.jobId, { resolution });
+      setResult(final);
+      notifySuccess("Votre vidéo est prête !");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Impossible de contacter le serveur.");
     } finally {
       setLoading(false);
     }
@@ -468,6 +523,7 @@ function TextToVideo() {
             <div className="flex flex-col items-center gap-3 text-zinc-400 dark:text-zinc-500">
               <span className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-200 border-t-zinc-500 dark:border-zinc-800 dark:border-t-zinc-400" />
               <p className="text-sm">Génération en cours...</p>
+              <p className="text-xs">Ça peut prendre plusieurs minutes, restez sur cette page.</p>
             </div>
           ) : result ? (
             <div className="flex w-full max-w-lg flex-col items-center gap-4">

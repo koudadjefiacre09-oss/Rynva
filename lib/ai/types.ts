@@ -21,9 +21,22 @@ export interface VideoGenerationInput {
   /** When set, animates this existing image instead of generating from text alone. */
   sourceImageUrl?: string;
 }
-export interface VideoGenerationOutput {
-  url: string;
-  prompt: string;
+/**
+ * Video generation on Replicate (wan-2.7) can take 5-7+ minutes — far past
+ * Vercel's Hobby-plan 60s function timeout, so /api/ai/video can't just
+ * `await` a video the way it does for images. Instead the provider starts
+ * the job and hands back an opaque `jobId`; the client polls
+ * checkVideoGeneration until it's done. See app/api/ai/video/route.ts.
+ */
+export interface VideoJobHandle {
+  jobId: string;
+}
+
+export interface VideoJobStatusResult {
+  status: "processing" | "succeeded" | "failed";
+  url?: string;
+  prompt?: string;
+  error?: string;
 }
 
 export interface DesignGenerationInput {

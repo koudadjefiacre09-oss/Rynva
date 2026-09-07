@@ -2,7 +2,8 @@ import type {
   ImageGenerationInput,
   ImageGenerationOutput,
   VideoGenerationInput,
-  VideoGenerationOutput,
+  VideoJobHandle,
+  VideoJobStatusResult,
   DesignGenerationInput,
   DesignGenerationOutput,
   AudioGenerationInput,
@@ -25,7 +26,9 @@ import type {
 export interface AiProvider {
   name: string;
   generateImage?(input: ImageGenerationInput): Promise<ImageGenerationOutput>;
-  generateVideo?(input: VideoGenerationInput): Promise<VideoGenerationOutput>;
+  /** Starts an async video job — see VideoJobHandle for why this isn't a single await. */
+  startVideoGeneration?(input: VideoGenerationInput): Promise<VideoJobHandle>;
+  checkVideoGeneration?(jobId: string): Promise<VideoJobStatusResult>;
   generateDesign?(input: DesignGenerationInput): Promise<DesignGenerationOutput>;
   generateAudio?(input: AudioGenerationInput): Promise<AudioGenerationOutput>;
   removeBackground?(input: PhotoBackgroundRemovalInput): Promise<PhotoBackgroundRemovalOutput>;

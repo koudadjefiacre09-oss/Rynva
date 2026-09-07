@@ -4,7 +4,8 @@ import type {
   ImageGenerationInput,
   ImageGenerationOutput,
   VideoGenerationInput,
-  VideoGenerationOutput,
+  VideoJobHandle,
+  VideoJobStatusResult,
   DesignGenerationInput,
   DesignGenerationOutput,
   AudioGenerationInput,
@@ -168,7 +169,12 @@ export function createReplicateProvider(apiToken: string): AiProvider {
       return { url: outputToUrl(output), prompt: input.prompt };
     },
 
-    async generateVideo(input: VideoGenerationInput): Promise<VideoGenerationOutput> {
+    // Video jobs on wan-2.7 routinely take 5-7+ minutes (confirmed: two
+    // identical 15s/720p predictions both measured predict_time ≈ 383s) —
+    // far past a serverless function's timeout, so unlike every other
+    // capability in this file this is NOT a single create+wait. Start the
+    // prediction here and let the caller poll checkVideoGeneration.
+    async startVideoGeneration(input: VideoGenerationInput): Promise<VideoJobHandle> {
       const duration = input.durationSeconds ?? 5;
       // 720p default — cheaper/faster than the model's 1080p default. The
       // resolution picker in the UI now overrides this; "480p"/"1080p" are
@@ -176,19 +182,35 @@ export function createReplicateProvider(apiToken: string): AiProvider {
       // confirmed against the model's Replicate page — verify if either
       // starts erroring.
       const resolution = input.resolution ?? "720p";
-      const output = input.sourceImageUrl
-        ? await runModel(replicate, IMAGE_TO_VIDEO_MODEL, {
-            first_frame: input.sourceImageUrl,
-            prompt: input.prompt,
-            duration,
-            resolution,
+      const prediction = input.sourceImageUrl
+        ? await replicate.predictions.create({
+            model: IMAGE_TO_VIDEO_MODEL,
+            input: { first_frame: input.sourceImageUrl, prompt: input.prompt, duration, resolution },
           })
-        : await runModel(replicate, VIDEO_MODEL, {
-            prompt: input.prompt,
-            duration,
-            resolution,
+        : await replicate.predictions.create({
+            model: VIDEO_MODEL,
+            input: { prompt: input.prompt, duration, resolution },
           });
-      return { url: outputToUrl(output), prompt: input.prompt };
+      return { jobId: prediction.id };
+    },
+
+    async checkVideoGeneration(jobId: string): Promise<VideoJobStatusResult> {
+      const prediction = await replicate.predictions.get(jobId);
+
+      if (prediction.status === "succeeded") {
+        return {
+          status: "succeeded",
+          url: outputToUrl(prediction.output),
+          prompt: String((prediction.input as Record<string, unknown> | undefined)?.prompt ?? ""),
+        };
+      }
+      if (prediction.status === "failed" || prediction.status === "canceled") {
+        return {
+          status: "failed",
+          error: prediction.error ? String(prediction.error) : "La génération a échoué.",
+        };
+      }
+      return { status: "processing" };
     },
 
     async generateAudio(input: AudioGenerationInput): Promise<AudioGenerationOutput> {

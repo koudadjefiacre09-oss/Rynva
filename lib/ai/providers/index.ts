@@ -61,7 +61,8 @@ export function getAiProvider(): AiProvider | null {
   return {
     name: "rynva",
     generateImage: replicate?.generateImage,
-    generateVideo: replicate?.generateVideo,
+    startVideoGeneration: replicate?.startVideoGeneration,
+    checkVideoGeneration: replicate?.checkVideoGeneration,
     generateDesign: replicate?.generateDesign,
     generateAudio: replicate?.generateAudio,
     removeBackground: replicate?.removeBackground,
