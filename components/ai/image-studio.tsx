@@ -4,8 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import {
   ArrowUp,
-  Bookmark,
-  Check,
   ChevronDown,
   Download,
   Grid2x2,
@@ -14,11 +12,10 @@ import {
   RefreshCw,
   Sparkles,
   Trash2,
-  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { notifySuccess } from "@/lib/toast";
-import { deletePromptPreset, savePromptPreset } from "@/app/(app)/ai/image/actions";
+import { deletePromptPreset } from "@/app/(app)/ai/image/actions";
 import type { PromptPreset } from "@/lib/prompts/types";
 
 interface ImageResult {
@@ -35,9 +32,10 @@ const ASPECT_RATIOS = [
 ] as const;
 
 // flux-schnell genuinely supports 1-4 outputs per call (see lib/ai/providers
-// /replicate.ts) — unlike the reference's Steps/Style sliders, which don't
-// map to anything this model exposes, so those aren't reproduced here.
-const VARIATION_COUNTS = [1, 2, 3, 4] as const;
+// /replicate.ts). One credit is consumed regardless of how many variations
+// come back (see lib/credits/gate.ts), so we always request the max instead
+// of exposing a count picker.
+const VARIATIONS = 4;
 
 const SUGGESTIONS = [
   "Un renard bleu néon dans une forêt cyberpunk, style illustration digitale",
@@ -72,16 +70,12 @@ export function ImageStudio({ initialPresets = [] }: { initialPresets?: PromptPr
   const [prompt, setPrompt] = useState("");
   const [aspectRatio, setAspectRatio] =
     useState<(typeof ASPECT_RATIOS)[number]["value"]>("1:1");
-  const [variations, setVariations] = useState<(typeof VARIATION_COUNTS)[number]>(4);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ImageResult | null>(null);
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
 
   const [presets, setPresets] = useState<PromptPreset[]>(initialPresets);
-  const [savingPreset, setSavingPreset] = useState(false);
-  const [presetLabel, setPresetLabel] = useState("");
-  const [presetError, setPresetError] = useState<string | null>(null);
 
   async function generate() {
     if (!prompt.trim() || loading) return;
@@ -95,7 +89,7 @@ export function ImageStudio({ initialPresets = [] }: { initialPresets?: PromptPr
       const res = await fetch("/api/ai/image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, aspectRatio, variations }),
+        body: JSON.stringify({ prompt, aspectRatio, variations: VARIATIONS }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -116,18 +110,6 @@ export function ImageStudio({ initialPresets = [] }: { initialPresets?: PromptPr
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     await generate();
-  }
-
-  async function confirmSavePreset() {
-    const saveResult = await savePromptPreset(presetLabel, prompt);
-    if (saveResult.error) {
-      setPresetError(saveResult.error);
-      return;
-    }
-    if (saveResult.preset) setPresets((prev) => [saveResult.preset!, ...prev]);
-    setSavingPreset(false);
-    setPresetLabel("");
-    setPresetError(null);
   }
 
   async function handleDeletePreset(id: string) {
@@ -174,79 +156,22 @@ export function ImageStudio({ initialPresets = [] }: { initialPresets?: PromptPr
                 onChange={(v) => setAspectRatio(v as (typeof ASPECT_RATIOS)[number]["value"])}
                 options={ASPECT_RATIOS.map((r) => ({ value: r.value, display: r.label }))}
               />
-              <PillSelect
-                label="Variations"
-                value={String(variations)}
-                onChange={(v) => setVariations(Number(v) as (typeof VARIATION_COUNTS)[number])}
-                options={VARIATION_COUNTS.map((n) => ({ value: String(n), display: String(n) }))}
-              />
 
-              <div className="ml-auto flex items-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSavingPreset(true);
-                    setPresetError(null);
-                  }}
-                  disabled={!prompt.trim()}
-                  title="Enregistrer ce prompt"
-                  className="flex h-9 items-center gap-1.5 rounded-full border border-zinc-200 px-3 text-xs font-medium text-zinc-600 transition-colors hover:border-zinc-300 hover:text-zinc-900 disabled:cursor-not-allowed disabled:opacity-40 dark:border-zinc-700 dark:text-zinc-400 dark:hover:text-white"
-                >
-                  <Bookmark className="h-3.5 w-3.5" />
-                  Enregistrer
-                </button>
-                <button
-                  type="submit"
-                  disabled={!prompt.trim() || loading}
-                  aria-label="Générer"
-                  className="flex h-9 items-center gap-1.5 rounded-full bg-zinc-900 px-3.5 text-xs font-medium text-white transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:bg-zinc-300 disabled:text-zinc-500 dark:bg-white dark:text-zinc-900 dark:disabled:bg-zinc-700 dark:disabled:text-zinc-500"
-                >
-                  {loading ? (
-                    <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white dark:border-zinc-900/30 dark:border-t-zinc-900" />
-                  ) : (
-                    <ArrowUp className="h-3.5 w-3.5" />
-                  )}
-                  Générer (1 crédit)
-                </button>
-              </div>
+              <button
+                type="submit"
+                disabled={!prompt.trim() || loading}
+                aria-label="Générer"
+                className="ml-auto flex h-9 items-center gap-1.5 rounded-full bg-zinc-900 px-3.5 text-xs font-medium text-white transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:bg-zinc-300 disabled:text-zinc-500 dark:bg-white dark:text-zinc-900 dark:disabled:bg-zinc-700 dark:disabled:text-zinc-500"
+              >
+                {loading ? (
+                  <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white dark:border-zinc-900/30 dark:border-t-zinc-900" />
+                ) : (
+                  <ArrowUp className="h-3.5 w-3.5" />
+                )}
+                Générer (1 crédit)
+              </button>
             </div>
           </form>
-
-          {savingPreset && (
-            <div className="-mt-2 flex flex-col gap-1.5 rounded-2xl border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-800 dark:bg-zinc-800/50">
-              <input
-                autoFocus
-                value={presetLabel}
-                onChange={(e) => setPresetLabel(e.target.value)}
-                placeholder="Nom de ce prompt (ex : Portrait néon)"
-                maxLength={60}
-                className="rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs text-zinc-900 placeholder:text-zinc-400 focus-visible:outline-none focus-visible:border-brand-purple dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:placeholder:text-zinc-500"
-              />
-              {presetError && <p className="text-xs text-danger">{presetError}</p>}
-              <div className="flex gap-1.5">
-                <button
-                  type="button"
-                  onClick={confirmSavePreset}
-                  disabled={!presetLabel.trim()}
-                  className="flex items-center gap-1 rounded-full bg-gradient-brand px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
-                >
-                  <Check className="h-3.5 w-3.5" />
-                  Enregistrer
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSavingPreset(false);
-                    setPresetError(null);
-                  }}
-                  className="flex items-center gap-1 rounded-full border border-zinc-300 px-3 py-1.5 text-xs font-medium text-zinc-500 hover:text-zinc-700 dark:border-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
-                >
-                  <X className="h-3.5 w-3.5" />
-                  Annuler
-                </button>
-              </div>
-            </div>
-          )}
 
           {/* Suggestions — horizontal scroll of quick-start ideas. */}
           <div className="flex flex-col gap-2">
@@ -271,7 +196,7 @@ export function ImageStudio({ initialPresets = [] }: { initialPresets?: PromptPr
             <span className="text-xs font-medium text-zinc-500">Bibliothèque de prompts</span>
             {presets.length === 0 ? (
               <p className="rounded-xl border border-dashed border-zinc-200 px-3 py-3 text-center text-xs text-zinc-400 dark:border-zinc-800 dark:text-zinc-600">
-                Enregistrez un prompt (icône signet ci-dessus) pour le retrouver ici.
+                Vos prompts enregistrés apparaîtront ici.
               </p>
             ) : (
               <div className="flex flex-col gap-0.5">
@@ -444,9 +369,9 @@ function ResultActions({
 /**
  * A native <select> styled as a rounded pill with a label + current value +
  * chevron (e.g. "Format Carré ⌄") — the composer-bar look from the
- * reference, applied to the two settings that are actually real (aspect
- * ratio, variation count). A plain <select> keeps this keyboard/screen-
- * reader accessible for free instead of building a custom listbox.
+ * reference, applied to the one setting that's actually real (aspect
+ * ratio). A plain <select> keeps this keyboard/screen-reader accessible for
+ * free instead of building a custom listbox.
  */
 function PillSelect({
   label,

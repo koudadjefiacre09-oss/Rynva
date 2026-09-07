@@ -13,13 +13,23 @@ import { isSupabaseConfigured } from "@/lib/supabase/config";
  *
  * Skips recording for: this browser having opted out (the "Ne pas compter
  * mes visites" toggle on /admin sets a cookie, see lib/visits/no-track.ts —
- * covers logged-out browsing too, not just the authenticated session), and
- * any signed-in admin, so the site's own team doesn't inflate its own
- * traffic numbers.
+ * covers logged-out browsing too, not just the authenticated session), any
+ * signed-in admin, and requests that never passed through Vercel's edge at
+ * all — a genuine production request always carries x-vercel-ip-country
+ * (Vercel sets it even when the country truly can't be determined), so a
+ * completely missing header means this is local dev traffic instead (`npm
+ * run dev` on a machine whose .env.local points at this same Supabase
+ * project — found polluting the real "Inconnu" bucket with test visits).
  */
 export async function POST(request: Request) {
   const cookieStore = await cookies();
   if (cookieStore.get("rynva_no_track")?.value === "1") {
+    return NextResponse.json({ ok: true, skipped: true });
+  }
+
+  const h = await headers();
+  const country = h.get("x-vercel-ip-country");
+  if (!country) {
     return NextResponse.json({ ok: true, skipped: true });
   }
 
@@ -42,9 +52,6 @@ export async function POST(request: Request) {
 
   const json = await request.json().catch(() => null);
   const path = typeof json?.path === "string" && json.path ? json.path : "/";
-
-  const h = await headers();
-  const country = h.get("x-vercel-ip-country");
 
   await recordVisit(path, country);
   return NextResponse.json({ ok: true });
