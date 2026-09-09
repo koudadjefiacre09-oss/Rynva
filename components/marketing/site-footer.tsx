@@ -21,12 +21,19 @@ const columns = [
       { href: "/register", label: "Créer un compte" },
     ],
   },
+  {
+    title: "Légal",
+    links: [
+      { href: "/confidentialite", label: "Confidentialité" },
+      { href: "/conditions", label: "Conditions" },
+    ],
+  },
 ];
 
 export function SiteFooter() {
   return (
     <footer className="border-t border-ink/10 bg-white px-6 py-14 font-display text-ink">
-      <div className="mx-auto grid max-w-6xl gap-10 sm:grid-cols-2 md:grid-cols-4">
+      <div className="mx-auto grid max-w-6xl gap-10 sm:grid-cols-2 md:grid-cols-5">
         <div>
           <Link href="/" className="flex items-center gap-2.5">
             <Image src="/logo.png" alt="RYNVA" width={26} height={26} />
