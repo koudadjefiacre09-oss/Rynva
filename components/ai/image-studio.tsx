@@ -9,6 +9,7 @@ import {
   Grid2x2,
   ImageIcon,
   Lightbulb,
+  Palette,
   RefreshCw,
   Ratio,
   Sparkles,
@@ -34,11 +35,24 @@ const ASPECT_RATIOS = [
   { value: "4:3", label: "Standard" },
 ] as const;
 
+// flux-schnell has no "style" parameter — a Style pill only stays honest by
+// actually changing what gets sent to the model, so each option is really a
+// suffix appended to the user's prompt at generation time (never shown back
+// in the textarea, so their own wording stays clean).
+const STYLES = [
+  { value: "none", label: "Aucun", modifier: "" },
+  { value: "realistic", label: "Réaliste", modifier: ", photographie réaliste, détails nets, éclairage naturel" },
+  { value: "anime", label: "Anime", modifier: ", style anime, illustration 2D, couleurs vives" },
+  { value: "cyberpunk", label: "Cyberpunk", modifier: ", style cyberpunk, néons, ambiance futuriste" },
+  { value: "watercolor", label: "Aquarelle", modifier: ", style aquarelle, peinture douce, papier texturé" },
+  { value: "3d", label: "3D", modifier: ", rendu 3D, style animation Pixar" },
+] as const;
+
 // flux-schnell genuinely supports 1-4 outputs per call (see lib/ai/providers
 // /replicate.ts). One credit is consumed regardless of how many variations
-// come back (see lib/credits/gate.ts), so we always request the max instead
-// of exposing a count picker.
-const VARIATIONS = 4;
+// come back (see lib/credits/gate.ts) — 2 keeps generation faster and
+// cheaper on the Replicate side without changing what the user pays.
+const VARIATIONS = 2;
 
 const SUGGESTIONS = [
   "Un renard bleu néon dans une forêt cyberpunk, style illustration digitale",
@@ -61,18 +75,21 @@ const SUGGESTIONS = [
  * around results — RYNVA doesn't generate that, so the panel only ever
  * shows what actually happened: the prompt and the images.
  *
- * The composer (prompt + format + send, all in one bar) and the prompt
- * library are inspired by a reference the user shared — deliberately
+ * The composer (prompt + format + style + send, all in one bar) and the
+ * prompt library are inspired by a reference the user shared — deliberately
  * without the parts of it RYNVA can't actually back: no model picker (one
  * image model), no negative prompt or reference-image conditioning (not
- * supported by that model), no steps/style sliders (flux-schnell caps
- * inference steps at 4, nowhere near a meaningful slider), no credit-pack
- * purchase widget (no payment provider wired). The prompt library is real.
+ * supported by that model), no steps slider (flux-schnell caps inference
+ * steps at 4, nowhere near a meaningful slider), no credit-pack purchase
+ * widget (no payment provider wired). Style is real but not a model
+ * parameter — flux-schnell doesn't have one, so each option just appends a
+ * suffix to the prompt (see STYLES above). The prompt library is real.
  */
 export function ImageStudio({ initialPresets = [] }: { initialPresets?: PromptPreset[] }) {
   const [prompt, setPrompt] = useState("");
   const [aspectRatio, setAspectRatio] =
     useState<(typeof ASPECT_RATIOS)[number]["value"]>("1:1");
+  const [style, setStyle] = useState<(typeof STYLES)[number]["value"]>("none");
   const [loading, setLoading] = useState(false);
   const [enhancing, setEnhancing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -89,11 +106,13 @@ export function ImageStudio({ initialPresets = [] }: { initialPresets?: PromptPr
     setResult(null);
     setFocusedIndex(null);
 
+    const styleModifier = STYLES.find((s) => s.value === style)?.modifier ?? "";
+
     try {
       const res = await fetch("/api/ai/image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, aspectRatio, variations: VARIATIONS }),
+        body: JSON.stringify({ prompt: `${prompt}${styleModifier}`, aspectRatio, variations: VARIATIONS }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -203,6 +222,13 @@ export function ImageStudio({ initialPresets = [] }: { initialPresets?: PromptPr
                 value={aspectRatio}
                 onChange={(v) => setAspectRatio(v as (typeof ASPECT_RATIOS)[number]["value"])}
                 options={ASPECT_RATIOS.map((r) => ({ value: r.value, display: r.label }))}
+              />
+              <PillSelect
+                icon={Palette}
+                label="Style"
+                value={style}
+                onChange={(v) => setStyle(v as (typeof STYLES)[number]["value"])}
+                options={STYLES.map((s) => ({ value: s.value, display: s.label }))}
               />
 
               <button
