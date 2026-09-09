@@ -42,7 +42,7 @@ export async function SiteHeader() {
           <Image src="/logo-full.png" alt="RYNVA" width={158} height={72} className="h-8 w-auto" priority />
         </Link>
 
-        <nav className="ml-10 hidden items-center gap-6 text-sm font-medium text-ink md:flex">
+        <nav className="ml-10 hidden items-center gap-6 text-sm font-medium text-ink lg:flex">
           {navLinks.map((link) => (
             <Link
               key={link.href}
