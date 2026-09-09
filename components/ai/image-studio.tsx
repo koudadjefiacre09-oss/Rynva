@@ -14,7 +14,6 @@ import {
   Ratio,
   Sparkles,
   Trash2,
-  Wand2,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -29,10 +28,11 @@ interface ImageResult {
 }
 
 const ASPECT_RATIOS = [
+  { value: "2:3", label: "Allongé" },
+  { value: "3:2", label: "Large" },
   { value: "1:1", label: "Carré" },
-  { value: "16:9", label: "Paysage" },
-  { value: "9:16", label: "Portrait" },
-  { value: "4:3", label: "Standard" },
+  { value: "9:16", label: "Vertical" },
+  { value: "16:9", label: "Panoramique" },
 ] as const;
 
 // flux-schnell has no "style" parameter — a Style pill only stays honest by
@@ -91,7 +91,6 @@ export function ImageStudio({ initialPresets = [] }: { initialPresets?: PromptPr
     useState<(typeof ASPECT_RATIOS)[number]["value"]>("1:1");
   const [style, setStyle] = useState<(typeof STYLES)[number]["value"]>("none");
   const [loading, setLoading] = useState(false);
-  const [enhancing, setEnhancing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ImageResult | null>(null);
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
@@ -135,34 +134,6 @@ export function ImageStudio({ initialPresets = [] }: { initialPresets?: PromptPr
     await generate();
   }
 
-  // Sends the current prompt to /api/ai/image/enhance-prompt (chat fallback
-  // chain: Anthropic > Grok > OpenAI, see lib/ai/providers/index.ts) and
-  // swaps it in place — same idea as Midjourney/DALL·E's "enhance prompt".
-  async function enhancePrompt() {
-    if (!prompt.trim() || enhancing || loading) return;
-
-    setEnhancing(true);
-    setError(null);
-
-    try {
-      const res = await fetch("/api/ai/image/enhance-prompt", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error ?? "Une erreur est survenue.");
-      } else {
-        setPrompt(data.prompt);
-      }
-    } catch {
-      setError("Impossible de contacter le serveur.");
-    } finally {
-      setEnhancing(false);
-    }
-  }
-
   async function handleDeletePreset(id: string) {
     setPresets((prev) => prev.filter((p) => p.id !== id));
     await deletePromptPreset(id);
@@ -201,27 +172,12 @@ export function ImageStudio({ initialPresets = [] }: { initialPresets?: PromptPr
               className="resize-none bg-transparent px-1 pt-1 text-sm text-zinc-900 placeholder:text-zinc-400 focus-visible:outline-none dark:text-white dark:placeholder:text-zinc-500"
             />
             <div className="flex flex-wrap items-center gap-1.5 border-t border-zinc-200 px-1 pb-1 pt-2 dark:border-zinc-700/60">
-              <button
-                type="button"
-                onClick={enhancePrompt}
-                disabled={!prompt.trim() || enhancing || loading}
-                aria-label="Améliorer le prompt"
-                title="Améliorer le prompt avec l'IA"
-                className="flex h-7 items-center gap-1.5 rounded-full border border-zinc-200 px-2.5 text-[11px] font-medium text-zinc-600 transition-colors hover:border-zinc-300 hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-zinc-600 dark:hover:bg-zinc-800"
-              >
-                {enhancing ? (
-                  <span className="h-3 w-3 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-600 dark:border-zinc-600 dark:border-t-zinc-300" />
-                ) : (
-                  <Wand2 className="h-3 w-3" />
-                )}
-                Améliorer
-              </button>
               <PillSelect
                 icon={Ratio}
                 label="Format"
                 value={aspectRatio}
                 onChange={(v) => setAspectRatio(v as (typeof ASPECT_RATIOS)[number]["value"])}
-                options={ASPECT_RATIOS.map((r) => ({ value: r.value, display: r.label }))}
+                options={ASPECT_RATIOS.map((r) => ({ value: r.value, display: `${r.value} ${r.label}` }))}
               />
               <PillSelect
                 icon={Palette}

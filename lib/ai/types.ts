@@ -2,7 +2,7 @@ export type AiCapability = "image" | "video" | "design" | "audio" | "chat";
 
 export interface ImageGenerationInput {
   prompt: string;
-  aspectRatio?: "1:1" | "16:9" | "9:16" | "4:3";
+  aspectRatio?: "2:3" | "3:2" | "1:1" | "9:16" | "16:9";
   /** How many variations to generate in one call (1-4, default 4). */
   variations?: number;
 }

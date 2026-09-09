@@ -9,7 +9,7 @@ import { checkCreditQuota, consumeCredit } from "@/lib/credits/gate";
 
 const bodySchema = z.object({
   prompt: z.string().min(3, "Décrivez ce que vous voulez générer.").max(4000),
-  aspectRatio: z.enum(["1:1", "16:9", "9:16", "4:3"]).optional(),
+  aspectRatio: z.enum(["2:3", "3:2", "1:1", "9:16", "16:9"]).optional(),
   // Character creation only ever needs one portrait — asking for 4 there
   // would burn 4x the Replicate cost on 3 images nobody looks at, so it
   // explicitly passes 1. The main Image tool omits this and gets the default.
