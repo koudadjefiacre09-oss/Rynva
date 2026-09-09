@@ -2,10 +2,33 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Send, Bot, User, Plus, Trash2, History, X } from "lucide-react";
+import ReactMarkdown, { type Components } from "react-markdown";
 import { cn } from "@/lib/utils";
 import { formatRelativeTime } from "@/lib/format-relative-time";
+import { initialsOf } from "@/lib/initials";
 import { deleteConversation, loadConversation } from "@/app/(app)/ai/chat/actions";
 import type { ChatConversation } from "@/lib/chat/types";
+
+// Assistant replies come back as markdown (lists, **bold**, etc. — see the
+// SYSTEM_PROMPT in lib/ai/providers/*) but were rendered as raw text, so
+// users saw literal "**" and every line squashed onto one paragraph (HTML
+// collapses bare "\n"). No @tailwindcss/typography in this project, so each
+// element gets its spacing/weight here instead of a "prose" class.
+const markdownComponents: Components = {
+  p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+  ul: ({ children }) => <ul className="mb-2 ml-4 list-disc space-y-1 last:mb-0">{children}</ul>,
+  ol: ({ children }) => <ol className="mb-2 ml-4 list-decimal space-y-1 last:mb-0">{children}</ol>,
+  li: ({ children }) => <li>{children}</li>,
+  strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+  code: ({ children }) => (
+    <code className="rounded bg-zinc-100 px-1 py-0.5 text-xs dark:bg-zinc-800">{children}</code>
+  ),
+  a: ({ children, href }) => (
+    <a href={href} target="_blank" rel="noreferrer" className="underline">
+      {children}
+    </a>
+  ),
+};
 
 type Message = { role: "user" | "assistant"; content: string };
 
@@ -25,7 +48,15 @@ function truncateTitle(text: string): string {
   return trimmed.length > 60 ? `${trimmed.slice(0, 60)}…` : trimmed;
 }
 
-export function ChatStudio({ initialConversations = [] }: { initialConversations?: ChatConversation[] }) {
+export function ChatStudio({
+  initialConversations = [],
+  userAvatarUrl = null,
+  userName = "Vous",
+}: {
+  initialConversations?: ChatConversation[];
+  userAvatarUrl?: string | null;
+  userName?: string;
+}) {
   const [conversations, setConversations] = useState<ChatConversation[]>(initialConversations);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -259,12 +290,21 @@ export function ChatStudio({ initialConversations = [] }: { initialConversations
               <div key={i} className={cn("flex gap-3", message.role === "user" && "flex-row-reverse")}>
                 <div
                   className={cn(
-                    "flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
+                    "flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full",
                     message.role === "user" ? "bg-zinc-100 dark:bg-zinc-800" : "bg-gradient-brand"
                   )}
                 >
                   {message.role === "user" ? (
-                    <User className="h-4 w-4 text-zinc-500" />
+                    userAvatarUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={userAvatarUrl} alt="" className="h-full w-full object-cover" />
+                    ) : userName !== "Vous" ? (
+                      <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">
+                        {initialsOf(userName)}
+                      </span>
+                    ) : (
+                      <User className="h-4 w-4 text-zinc-500" />
+                    )
                   ) : (
                     <Bot className="h-4 w-4 text-white" />
                   )}
@@ -277,7 +317,11 @@ export function ChatStudio({ initialConversations = [] }: { initialConversations
                       : "border border-zinc-200 bg-white text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-white"
                   )}
                 >
-                  {message.content}
+                  {message.role === "assistant" ? (
+                    <ReactMarkdown components={markdownComponents}>{message.content}</ReactMarkdown>
+                  ) : (
+                    <span className="whitespace-pre-wrap">{message.content}</span>
+                  )}
                 </div>
               </div>
             ))

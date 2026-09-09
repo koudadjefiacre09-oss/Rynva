@@ -1,6 +1,7 @@
 "use client";
 
 import { useFormState, useFormStatus } from "react-dom";
+import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { register } from "@/app/auth/actions";
 import { Input } from "@/components/ui/input";
@@ -102,7 +103,11 @@ export function RegisterForm({ refCode }: { refCode?: string }) {
       <SubmitButton />
 
       <p className="text-center text-xs text-ink-muted">
-        En créant un compte, vous acceptez les conditions d&apos;utilisation de RYNVA.
+        En créant un compte, vous acceptez les{" "}
+        <Link href="/conditions" className="underline underline-offset-2 hover:text-ink">
+          conditions d&apos;utilisation
+        </Link>{" "}
+        de RYNVA.
       </p>
     </form>
   );

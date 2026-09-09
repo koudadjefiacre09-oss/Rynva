@@ -7,8 +7,8 @@ export const metadata: Metadata = { title: "Conditions d'utilisation" };
 // Baseline terms reflecting what RYNVA actually offers today (free-trial
 // quota + Pro plan, third-party AI providers, no guarantee of 100% uptime
 // since generation depends on those providers) — same "don't claim what
-// isn't real" rule as the rest of the product (see app/about/page.tsx).
-// Not a substitute for legal review before scaling.
+// isn't real" rule as the rest of the product. Not a substitute for legal
+// review before scaling.
 const sections = [
   {
     title: "1. Acceptation des conditions",

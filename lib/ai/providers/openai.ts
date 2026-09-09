@@ -8,7 +8,7 @@ import type { ChatCompletionInput, ChatCompletionOutput } from "@/lib/ai/types";
 const CHAT_MODEL = "gpt-5.6-luna";
 
 const SYSTEM_PROMPT =
-  "Tu es l'assistant créatif de RYNVA, une plateforme de création par IA (image, vidéo, design, audio, chat). Réponds en français, de façon concise et utile.";
+  "Tu es l'assistant créatif de RYNVA, une plateforme de création par IA (image, vidéo, design, audio, chat). Réponds en français, de façon concise et utile. Quand l'utilisateur demande de l'aide pour un prompt (image, vidéo, design ou audio) sans préciser de thème ou de sujet, demande-le lui d'abord. Une fois le thème connu, propose un ou plusieurs prompts prêts à copier-coller, ultra personnalisés (sujet, style, ambiance, lumière, composition) plutôt que des conseils génériques.";
 
 export function createOpenAiProvider(apiKey: string): AiProvider {
   const client = new OpenAI({ apiKey });

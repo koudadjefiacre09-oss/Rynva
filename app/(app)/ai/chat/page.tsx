@@ -3,6 +3,7 @@ import { ChatStudio } from "@/components/ai/chat-studio";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { listConversations } from "@/lib/chat/list";
+import { getProfile } from "@/lib/profiles/get";
 import type { ChatConversation } from "@/lib/chat/types";
 
 export const metadata: Metadata = { title: "Chat" };
@@ -13,6 +14,8 @@ export const dynamic = "force-dynamic";
 
 export default async function AiChatPage() {
   let conversations: ChatConversation[] = [];
+  let userAvatarUrl: string | null = null;
+  let userName = "Vous";
 
   // Guests can still use the chat itself (same "try before you sign up"
   // pattern as every other /ai/* tool) — history just doesn't apply to
@@ -24,8 +27,24 @@ export default async function AiChatPage() {
     } = await supabase.auth.getUser();
     if (user) {
       conversations = await listConversations(user.id);
+      const profile = await getProfile(user.id);
+      // Prefer the app's own uploaded avatar (Settings), fall back to the
+      // OAuth provider's photo (Google stores it as avatar_url or picture)
+      // so the bubble shows a real photo even before anyone uploads one.
+      userAvatarUrl =
+        profile?.avatarUrl ??
+        (user.user_metadata?.avatar_url as string | undefined) ??
+        (user.user_metadata?.picture as string | undefined) ??
+        null;
+      userName = (user.user_metadata?.full_name as string | undefined) || user.email || "Vous";
     }
   }
 
-  return <ChatStudio initialConversations={conversations} />;
+  return (
+    <ChatStudio
+      initialConversations={conversations}
+      userAvatarUrl={userAvatarUrl}
+      userName={userName}
+    />
+  );
 }

@@ -7,13 +7,12 @@ import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getProfile, type Profile } from "@/lib/profiles/get";
 
-// Kept to 4 links to stay close to the reference nav's proportions —
 // "Exemples" is still on the page (reachable by scroll), just not in the nav.
+// /about was removed (see git history) — 3 links now instead of 4.
 const navLinks = [
   { href: "/#fonctionnalites", label: "Fonctionnalités" },
   { href: "/#comment-ca-marche", label: "Comment ça marche" },
   { href: "/#tarifs", label: "Tarifs" },
-  { href: "/about", label: "À propos" },
 ];
 
 export async function SiteHeader() {

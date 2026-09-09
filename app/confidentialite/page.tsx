@@ -6,8 +6,8 @@ export const metadata: Metadata = { title: "Politique de confidentialité" };
 
 // Baseline privacy policy reflecting what RYNVA actually does today (see
 // lib/supabase, lib/ai/providers, Stripe, Resend integrations) — same
-// "don't claim what isn't real" rule as the rest of the product (see
-// app/about/page.tsx). Not a substitute for legal review before scaling.
+// "don't claim what isn't real" rule as the rest of the product. Not a
+// substitute for legal review before scaling.
 const sections = [
   {
     title: "1. Qui sommes-nous",
