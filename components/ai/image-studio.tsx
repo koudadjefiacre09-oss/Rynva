@@ -10,9 +10,11 @@ import {
   ImageIcon,
   Lightbulb,
   RefreshCw,
+  Ratio,
   Sparkles,
   Trash2,
   Wand2,
+  type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { notifySuccess } from "@/lib/toast";
@@ -196,6 +198,7 @@ export function ImageStudio({ initialPresets = [] }: { initialPresets?: PromptPr
                 Améliorer
               </button>
               <PillSelect
+                icon={Ratio}
                 label="Format"
                 value={aspectRatio}
                 onChange={(v) => setAspectRatio(v as (typeof ASPECT_RATIOS)[number]["value"])}
@@ -412,34 +415,40 @@ function ResultActions({
 }
 
 /**
- * A native <select> styled as a rounded pill with a label + current value +
- * chevron (e.g. "Format Carré ⌄") — the composer-bar look from the
- * reference, applied to the one setting that's actually real (aspect
- * ratio). A plain <select> keeps this keyboard/screen-reader accessible for
- * free instead of building a custom listbox.
+ * A native <select> styled as a rounded icon pill with the current value +
+ * chevron (e.g. "▭ Carré ⌄") — matches the icon-pill toolbar look from the
+ * Zenux reference (icon conveys the category, same way its "4 Images" / "2K"
+ * pills don't repeat a category word either), applied to the one setting
+ * that's actually real (aspect ratio). A plain <select> keeps this
+ * keyboard/screen-reader accessible for free instead of building a custom
+ * listbox — `aria-label` carries the category name for screen readers since
+ * the visible label was dropped from the pill itself.
  */
 function PillSelect({
+  icon: Icon,
   label,
   value,
   onChange,
   options,
 }: {
+  icon?: LucideIcon;
   label: string;
   value: string;
   onChange: (value: string) => void;
   options: { value: string; display: string }[];
 }) {
   return (
-    <div className="relative">
+    <div className="relative flex h-7 items-center gap-1 rounded-full border border-zinc-200 bg-white pl-2.5 pr-6 dark:border-zinc-700 dark:bg-zinc-900">
+      {Icon && <Icon className="h-3 w-3 shrink-0 text-zinc-400" />}
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
         aria-label={label}
-        className="peer appearance-none rounded-full border border-zinc-200 bg-white py-1 pl-2.5 pr-6 text-[11px] font-medium text-zinc-700 focus-visible:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300"
+        className="peer appearance-none bg-transparent text-[11px] font-medium text-zinc-700 focus-visible:outline-none dark:text-zinc-300"
       >
         {options.map((opt) => (
           <option key={opt.value} value={opt.value}>
-            {label} {opt.display}
+            {opt.display}
           </option>
         ))}
       </select>
