@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   ArrowUp,
+  Check,
   ChevronDown,
   Download,
   Grid2x2,
@@ -172,12 +173,12 @@ export function ImageStudio({ initialPresets = [] }: { initialPresets?: PromptPr
               className="resize-none bg-transparent px-1 pt-1 text-sm text-zinc-900 placeholder:text-zinc-400 focus-visible:outline-none dark:text-white dark:placeholder:text-zinc-500"
             />
             <div className="flex flex-wrap items-center gap-1.5 border-t border-zinc-200 px-1 pb-1 pt-2 dark:border-zinc-700/60">
-              <PillSelect
+              <RatioDropdown
                 icon={Ratio}
                 label="Format"
                 value={aspectRatio}
                 onChange={(v) => setAspectRatio(v as (typeof ASPECT_RATIOS)[number]["value"])}
-                options={ASPECT_RATIOS.map((r) => ({ value: r.value, display: `${r.value} ${r.label}` }))}
+                options={ASPECT_RATIOS}
               />
               <PillSelect
                 icon={Palette}
@@ -435,6 +436,96 @@ function PillSelect({
         ))}
       </select>
       <ChevronDown className="pointer-events-none absolute right-1.5 top-1/2 h-3 w-3 -translate-y-1/2 text-zinc-400 peer-focus-visible:text-zinc-600" />
+    </div>
+  );
+}
+
+/**
+ * Custom dropdown (not a native <select>) for the Format pill, matching the
+ * reference exactly: closed pill shows only the icon + ratio value (e.g.
+ * "▭ 2:3"), and the open panel is a floating card listing every option as
+ * "value  label" with a checkmark on the current one — a native <select>
+ * can't render that per-option layout, only a single line of plain text.
+ * Rolls its own listbox/option roles + outside-click/Escape handling since
+ * moving off native <select> loses that behavior for free.
+ */
+function RatioDropdown({
+  icon: Icon,
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  icon?: LucideIcon;
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  options: readonly { value: string; label: string }[];
+}) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    function handlePointerDown(e: MouseEvent) {
+      if (rootRef.current && !rootRef.current.contains(e.target as Node)) setOpen(false);
+    }
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [open]);
+
+  return (
+    <div ref={rootRef} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label={label}
+        className="flex h-7 items-center gap-1 rounded-full border border-zinc-200 bg-white pl-2.5 pr-2 text-[11px] font-medium text-zinc-700 transition-colors hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300"
+      >
+        {Icon && <Icon className="h-3 w-3 shrink-0 text-zinc-400" />}
+        {value}
+        <ChevronDown className="h-3 w-3 text-zinc-400" />
+      </button>
+
+      {open && (
+        <div
+          role="listbox"
+          aria-label={label}
+          className="absolute left-0 top-[calc(100%+6px)] z-20 w-44 overflow-hidden rounded-2xl border border-zinc-100 bg-white py-1 shadow-lg dark:border-zinc-800 dark:bg-zinc-900"
+        >
+          {options.map((opt) => {
+            const selected = opt.value === value;
+            return (
+              <button
+                key={opt.value}
+                type="button"
+                role="option"
+                aria-selected={selected}
+                onClick={() => {
+                  onChange(opt.value);
+                  setOpen(false);
+                }}
+                className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800"
+              >
+                <span className="flex items-baseline gap-2.5">
+                  <span className="font-semibold text-zinc-900 dark:text-white">{opt.value}</span>
+                  <span className="text-zinc-400 dark:text-zinc-500">{opt.label}</span>
+                </span>
+                {selected && <Check className="h-3.5 w-3.5 shrink-0 text-zinc-900 dark:text-white" />}
+              </button>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
