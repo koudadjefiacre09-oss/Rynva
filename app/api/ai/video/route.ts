@@ -6,6 +6,7 @@ import { resolveUser } from "@/lib/ai/route-helpers";
 import { saveGeneration } from "@/lib/generations/save";
 import { logActivity } from "@/lib/activity/log";
 import { checkCreditQuota, consumeCredit } from "@/lib/credits/gate";
+import { resolveSourceImage, SourceImageError } from "@/lib/ai/source-image.server";
 import { finalizeJob, recordVideoJob, replicateWebhookUrl, videoJobsEnabled } from "@/lib/ai/video-jobs.server";
 
 const bodySchema = z.object({
@@ -13,7 +14,8 @@ const bodySchema = z.object({
   durationSeconds: z.coerce.number().int().min(2).max(15).optional(),
   resolution: z.enum(["720p", "1080p"]).optional(),
   // When set, animates this existing image instead of generating from text alone.
-  sourceImageUrl: z.string().url().optional(),
+  // https URL of an existing creation, or a data URL of an uploaded image.
+  sourceImageUrl: z.string().url().max(12_000_000).optional(),
   sourceGenerationId: z.string().uuid().optional(),
 });
 
@@ -50,13 +52,23 @@ export async function POST(request: Request) {
     }
   }
 
+  let sourceImageUrl: string | undefined;
+  try {
+    sourceImageUrl = parsed.data.sourceImageUrl
+      ? await resolveSourceImage(parsed.data.sourceImageUrl, userId)
+      : undefined;
+  } catch (err) {
+    if (err instanceof SourceImageError) return NextResponse.json({ error: err.message }, { status: 400 });
+    throw err;
+  }
+
   try {
     const tracked = Boolean(userId) && videoJobsEnabled;
     const job = await provider.startVideoGeneration({
       prompt: parsed.data.prompt,
       durationSeconds: parsed.data.durationSeconds,
       resolution: parsed.data.resolution,
-      sourceImageUrl: parsed.data.sourceImageUrl,
+      sourceImageUrl,
       webhookUrl: tracked ? replicateWebhookUrl() ?? undefined : undefined,
     });
     // Recorded server-side so the video is saved even if this tab closes.

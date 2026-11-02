@@ -1,11 +1,13 @@
 "use client";
 
-import { useRef, useState } from "react";
-import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Upload, Eraser, Sparkles, Download, User, ImageIcon, Wand2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { notifySuccess } from "@/lib/toast";
 import { PhotoRetouchStudio } from "@/components/ai/photo-retouch/photo-retouch-studio";
+import { SendToTools } from "@/components/ai/shared/send-to-tools";
+import { urlToFile } from "@/components/ai/shared/image-input";
 
 const MAX_FILE_BYTES = 10 * 1024 * 1024; // 10MB
 
@@ -61,8 +63,16 @@ function ToolTabs({ tool, onSelect }: { tool: Tool; onSelect: (tool: Tool) => vo
   );
 }
 
+function toolFromParam(value: string | null): Tool {
+  return value === "bg-remove" || value === "hd-enhance" ? value : "retouch";
+}
+
 export function PhotoStudio() {
-  const [tool, setTool] = useState<Tool>("retouch");
+  const searchParams = useSearchParams();
+  const sourceUrl = searchParams.get("sourceUrl");
+  const [tool, setTool] = useState<Tool>(toolFromParam(searchParams.get("tool")));
+  const [incomingFile, setIncomingFile] = useState<File | null>(null);
+  const [incomingError, setIncomingError] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [result, setResult] = useState<{ url: string; generationId?: string } | null>(null);
   const [loading, setLoading] = useState(false);
@@ -99,6 +109,23 @@ export function PhotoStudio() {
     reader.readAsDataURL(file);
   }
 
+  // A creation sent from another tool (?tool=…&sourceUrl=…): load it here.
+  useEffect(() => {
+    if (!sourceUrl || !/^https:\/\//.test(sourceUrl)) return;
+    let cancelled = false;
+    urlToFile(sourceUrl)
+      .then((file) => {
+        if (cancelled) return;
+        if (toolFromParam(searchParams.get("tool")) === "retouch") setIncomingFile(file);
+        else handleFile(file);
+      })
+      .catch((err) => !cancelled && setIncomingError(err instanceof Error ? err.message : "Image introuvable."));
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sourceUrl]);
+
   async function handleRun() {
     if (!preview || loading) return;
     setLoading(true);
@@ -131,7 +158,17 @@ export function PhotoStudio() {
   }
 
   if (tool === "retouch") {
-    return <PhotoRetouchStudio toolSwitcher={<ToolTabs tool={tool} onSelect={selectTool} />} />;
+    return (
+      <PhotoRetouchStudio
+        toolSwitcher={
+          <>
+            <ToolTabs tool={tool} onSelect={selectTool} />
+            {incomingError && <p className="text-xs text-danger">{incomingError}</p>}
+          </>
+        }
+        initialFile={incomingFile}
+      />
+    );
   }
 
   return (
@@ -305,16 +342,8 @@ export function PhotoStudio() {
                     Télécharger
                   </span>
                 </a>
-                <Link
-                  href={`/ai/video?sourceUrl=${encodeURIComponent(result.url)}${
-                    result.generationId ? `&sourceId=${result.generationId}` : ""
-                  }`}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-zinc-200 px-3.5 py-2 text-xs font-medium text-zinc-600 transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:text-zinc-300 dark:hover:border-zinc-700 dark:hover:bg-zinc-900"
-                >
-                  <Sparkles className="h-3.5 w-3.5" />
-                  Animer
-                </Link>
               </div>
+              <SendToTools url={result.url} generationId={result.generationId} exclude={[tool]} className="justify-center" />
             </div>
           ) : (
             <div className="flex w-full max-w-md flex-col items-center gap-3">

@@ -6,6 +6,7 @@ import { resolveUser } from "@/lib/ai/route-helpers";
 import { saveGeneration } from "@/lib/generations/save";
 import { logActivity } from "@/lib/activity/log";
 import { checkCreditQuota, consumeCredit } from "@/lib/credits/gate";
+import { resolveSourceImage, SourceImageError } from "@/lib/ai/source-image.server";
 
 const bodySchema = z.object({
   prompt: z.string().min(3, "Décrivez ce que vous voulez générer.").max(4000),
@@ -14,6 +15,8 @@ const bodySchema = z.object({
   // would burn 4x the Replicate cost on 3 images nobody looks at, so it
   // explicitly passes 1. The main Image tool omits this and gets the default.
   variations: z.coerce.number().int().min(1).max(4).optional(),
+  // Optional reference: data URL of an uploaded image or https URL of a creation.
+  referenceImageUrl: z.string().url().max(12_000_000).optional(),
 });
 
 export async function POST(request: Request) {
@@ -41,8 +44,18 @@ export async function POST(request: Request) {
     }
   }
 
+  let referenceImageUrl: string | undefined;
   try {
-    const result = await provider.generateImage(parsed.data);
+    referenceImageUrl = parsed.data.referenceImageUrl
+      ? await resolveSourceImage(parsed.data.referenceImageUrl, userId)
+      : undefined;
+  } catch (err) {
+    if (err instanceof SourceImageError) return NextResponse.json({ error: err.message }, { status: 400 });
+    throw err;
+  }
+
+  try {
+    const result = await provider.generateImage({ ...parsed.data, referenceImageUrl });
     let urls = result.urls;
     let generationIds: (string | undefined)[] = urls.map(() => undefined);
 
@@ -58,7 +71,7 @@ export async function POST(request: Request) {
             type: "image",
             sourceUrl,
             prompt: result.prompt,
-            metadata: { aspectRatio: parsed.data.aspectRatio ?? "1:1" },
+            metadata: { aspectRatio: parsed.data.aspectRatio ?? "1:1", fromReference: Boolean(referenceImageUrl) },
           })
         )
       );

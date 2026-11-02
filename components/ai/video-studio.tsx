@@ -5,6 +5,10 @@ import { useSearchParams } from "next/navigation";
 import {
   ArrowUp,
   Download,
+  FolderOpen,
+  ImageIcon,
+  Type,
+  Upload,
   Mic,
   Smartphone,
   Video,
@@ -13,6 +17,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { notifySuccess } from "@/lib/toast";
+import { fetchProjectImages, fileToDataUrl, type ProjectImage } from "@/components/ai/shared/image-input";
 
 interface VideoResult {
   url: string;
@@ -123,13 +128,155 @@ async function pollVideoJob(
   throw new Error("La génération prend plus de temps que prévu. Réessayez plus tard.");
 }
 
+const MOTION_PRESETS = [
+  "Zoom avant lent et cinématographique",
+  "Travelling latéral doux",
+  "Effet parallaxe, l'arrière-plan bouge légèrement",
+  "Cheveux et vêtements qui bougent au vent",
+  "La personne sourit et cligne des yeux naturellement",
+  "La caméra tourne lentement autour du sujet",
+];
+
+function VideoModeTabs({ mode, onChange }: { mode: "text" | "image"; onChange: (mode: "text" | "image") => void }) {
+  return (
+    <div className="flex gap-1 rounded-2xl border border-zinc-200 bg-zinc-50 p-1 dark:border-zinc-800 dark:bg-zinc-800/50">
+      {([
+        ["text", "Texte → vidéo", Type],
+        ["image", "Image → vidéo", ImageIcon],
+      ] as const).map(([value, label, Icon]) => (
+        <button
+          key={value}
+          type="button"
+          onClick={() => onChange(value)}
+          aria-pressed={mode === value}
+          className={cn(
+            "flex flex-1 items-center justify-center gap-1.5 rounded-xl px-2 py-2 text-xs font-medium transition-colors",
+            mode === value
+              ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-700 dark:text-white"
+              : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-500 dark:hover:text-zinc-300"
+          )}
+        >
+          <Icon className="h-3.5 w-3.5" />
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/** Choose the image to animate: upload, or pick one of the user's creations. */
+function ImagePicker({ onPick }: { onPick: (image: { url: string; generationId?: string }) => void }) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [projects, setProjects] = useState<ProjectImage[] | null>(null);
+  const [dragOver, setDragOver] = useState(false);
+
+  async function handleFile(file: File | undefined) {
+    if (!file) return;
+    setError(null);
+    setBusy(true);
+    try {
+      onPick({ url: await fileToDataUrl(file) });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Impossible de lire cette image.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function openProjects() {
+    setError(null);
+    setProjects([]);
+    const items = await fetchProjectImages();
+    setProjects(items);
+    if (items.length === 0) setError("Aucune image dans vos projets pour le moment.");
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      <span className="text-xs font-medium text-zinc-500">Image à animer</span>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        className="hidden"
+        onChange={(e) => void handleFile(e.target.files?.[0])}
+      />
+      <button
+        type="button"
+        onClick={() => inputRef.current?.click()}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDragOver(true);
+        }}
+        onDragLeave={() => setDragOver(false)}
+        onDrop={(e) => {
+          e.preventDefault();
+          setDragOver(false);
+          void handleFile(e.dataTransfer.files?.[0]);
+        }}
+        className={cn(
+          "flex flex-col items-center gap-2 rounded-2xl border border-dashed px-4 py-8 text-center transition-colors",
+          dragOver
+            ? "border-zinc-500 bg-zinc-50 dark:bg-zinc-800/50"
+            : "border-zinc-300 hover:border-zinc-400 dark:border-zinc-700 dark:hover:border-zinc-600"
+        )}
+      >
+        {busy ? (
+          <span className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-200 border-t-zinc-500" />
+        ) : (
+          <Upload className="h-5 w-5 text-zinc-400" />
+        )}
+        <span className="text-sm font-medium text-zinc-900 dark:text-white">Importer une photo</span>
+        <span className="text-xs text-zinc-400">JPEG, PNG ou WebP · glissez-déposez ou cliquez</span>
+      </button>
+      <button
+        type="button"
+        onClick={() => void openProjects()}
+        className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-zinc-200 py-2.5 text-xs font-medium text-zinc-600 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-800"
+      >
+        <FolderOpen className="h-3.5 w-3.5" />
+        Choisir dans mes projets
+      </button>
+      {projects && projects.length > 0 && (
+        <div className="grid max-h-64 grid-cols-3 gap-2 overflow-y-auto rounded-2xl border border-zinc-200 p-2 dark:border-zinc-800">
+          {projects.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => onPick({ url: item.url, generationId: item.id })}
+              title={item.prompt ?? undefined}
+              className="aspect-square overflow-hidden rounded-xl bg-zinc-100 ring-zinc-900 hover:ring-2 dark:bg-zinc-800 dark:ring-white"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={item.url} alt={item.prompt ?? "Création"} className="h-full w-full object-cover" />
+            </button>
+          ))}
+        </div>
+      )}
+      {projects && projects.length === 0 && !error && (
+        <p className="text-xs text-zinc-400">Chargement de vos projets…</p>
+      )}
+      {error && <p className="text-xs text-danger">{error}</p>}
+    </div>
+  );
+}
+
 function AnimateFromImage({
-  sourceImageUrl,
-  sourceGenerationId,
+  initialImageUrl,
+  initialGenerationId,
+  modeTabs,
 }: {
-  sourceImageUrl: string;
-  sourceGenerationId?: string;
+  initialImageUrl?: string | null;
+  initialGenerationId?: string;
+  modeTabs: React.ReactNode;
 }) {
+  const [image, setImage] = useState<{ url: string; generationId?: string } | null>(
+    initialImageUrl ? { url: initialImageUrl, generationId: initialGenerationId } : null
+  );
+  const sourceImageUrl = image?.url;
+  const sourceGenerationId = image?.generationId;
   const [prompt, setPrompt] = useState("");
   const [durationSeconds, setDurationSeconds] = useState<"5" | "10" | "15">("5");
   const [loading, setLoading] = useState(false);
@@ -163,9 +310,13 @@ function AnimateFromImage({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  function addPreset(text: string) {
+    setPrompt((current) => (current.trim() ? `${current.trim().replace(/[.,;]$/, "")}, ${text.toLowerCase()}` : text));
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!prompt.trim() || loading) return;
+    if (!sourceImageUrl || !prompt.trim() || loading) return;
     setLoading(true);
     setError(null);
     setResult(null);
@@ -203,14 +354,34 @@ function AnimateFromImage({
               Animer une image
             </h1>
             <p className="mt-1 text-sm text-zinc-500">
-              Décrivez le mouvement à donner à votre création.
+              1. Choisissez une image · 2. Décrivez le mouvement · 3. Animez.
             </p>
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950/50">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={sourceImageUrl} alt="Image à animer" className="max-h-48 w-full object-contain" />
-          </div>
+          {modeTabs}
+
+          {image ? (
+            <div className="flex flex-col gap-2">
+              <span className="text-xs font-medium text-zinc-500">Image à animer</span>
+              <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950/50">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={image.url} alt="Image à animer" className="max-h-56 w-full object-contain" />
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setImage(null);
+                  setResult(null);
+                }}
+                disabled={loading}
+                className="self-start text-xs font-medium text-zinc-500 underline-offset-2 hover:text-zinc-900 hover:underline disabled:opacity-50 dark:text-zinc-400 dark:hover:text-white"
+              >
+                Changer d&apos;image
+              </button>
+            </div>
+          ) : (
+            <ImagePicker onPick={setImage} />
+          )}
 
           <div className="flex flex-col gap-2">
             <label htmlFor="animate-prompt" className="text-xs font-medium text-zinc-500">
@@ -221,10 +392,22 @@ function AnimateFromImage({
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               placeholder="Ex : la caméra recule doucement, les nuages défilent en arrière-plan"
-              rows={4}
+              rows={3}
               maxLength={4000}
               className="resize-none rounded-2xl border border-zinc-200 bg-zinc-50 p-3.5 text-sm text-zinc-900 placeholder:text-zinc-400 focus-visible:border-zinc-300 focus-visible:outline-none dark:border-zinc-800 dark:bg-zinc-800/50 dark:text-white dark:placeholder:text-zinc-500"
             />
+            <div className="flex flex-wrap gap-1.5">
+              {MOTION_PRESETS.map((preset) => (
+                <button
+                  key={preset}
+                  type="button"
+                  onClick={() => addPreset(preset)}
+                  className="rounded-full border border-zinc-200 px-2.5 py-1 text-[11px] text-zinc-600 transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800"
+                >
+                  + {preset}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="flex flex-col gap-2">
@@ -250,7 +433,7 @@ function AnimateFromImage({
 
           <button
             type="submit"
-            disabled={!prompt.trim() || loading}
+            disabled={!sourceImageUrl || !prompt.trim() || loading}
             className="mt-auto flex items-center justify-center gap-2 rounded-xl bg-zinc-900 py-3 text-sm font-medium text-white transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:bg-zinc-300 disabled:text-zinc-500 dark:bg-white dark:text-zinc-900 dark:disabled:bg-zinc-700 dark:disabled:text-zinc-500"
           >
             {loading ? (
@@ -261,7 +444,7 @@ function AnimateFromImage({
             ) : (
               <>
                 <ArrowUp className="h-4 w-4" />
-                Animer
+                {sourceImageUrl ? "Animer (1 crédit vidéo)" : "Choisissez d'abord une image"}
               </>
             )}
           </button>
@@ -289,8 +472,10 @@ function AnimateFromImage({
               <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-500">
                 <Video className="h-6 w-6" />
               </span>
-              <p className="text-sm text-zinc-400 dark:text-zinc-500">
-                Votre vidéo apparaîtra ici une fois générée.
+              <p className="max-w-xs text-sm text-zinc-400 dark:text-zinc-500">
+                {image
+                  ? "Décrivez le mouvement, puis lancez l'animation. La vidéo apparaîtra ici."
+                  : "Importez une photo ou choisissez une de vos créations pour commencer."}
               </p>
             </div>
           )}
@@ -329,7 +514,7 @@ interface SpeechRecognitionLike extends EventTarget {
   onerror: (() => void) | null;
 }
 
-function TextToVideo() {
+function TextToVideo({ modeTabs }: { modeTabs: React.ReactNode }) {
   const [prompt, setPrompt] = useState("");
   const [resolution, setResolution] = useState<Resolution>("720p");
   const [duration, setDuration] = useState<BarDuration>("6");
@@ -463,6 +648,8 @@ function TextToVideo() {
               Décrivez la scène ou l&rsquo;action à transformer en vidéo courte.
             </p>
           </div>
+
+          {modeTabs}
 
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
@@ -650,13 +837,21 @@ function VideoStudioInner() {
   const sourceImageUrl = searchParams.get("sourceUrl");
   const sourceGenerationId = searchParams.get("sourceId") ?? undefined;
 
-  if (sourceImageUrl) {
+  const [mode, setMode] = useState<"text" | "image">(sourceImageUrl ? "image" : "text");
+  const tabs = <VideoModeTabs mode={mode} onChange={setMode} />;
+
+  if (mode === "image") {
     return (
-      <AnimateFromImage sourceImageUrl={sourceImageUrl} sourceGenerationId={sourceGenerationId} />
+      <AnimateFromImage
+        key={sourceImageUrl ?? "upload"}
+        initialImageUrl={sourceImageUrl}
+        initialGenerationId={sourceGenerationId}
+        modeTabs={tabs}
+      />
     );
   }
 
-  return <TextToVideo />;
+  return <TextToVideo modeTabs={tabs} />;
 }
 
 export function VideoStudio() {
