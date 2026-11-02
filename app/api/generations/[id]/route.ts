@@ -8,7 +8,8 @@ const patchSchema = z.union([
   z.object({ restore: z.literal(true) }),
 ]);
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const { response: authError, userId } = await resolveUser();
   if (authError) return authError;
   if (!userId) {
@@ -30,7 +31,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   const { data, error } = await supabase
     .from("generations")
     .update(update)
-    .eq("id", params.id)
+    .eq("id", id)
     .eq("user_id", userId)
     .select("id")
     .single();
@@ -48,7 +49,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
  * Pass ?permanent=1 (only exposed from within the trash UI) to actually
  * remove the storage file and the row, which cannot be undone.
  */
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const { response: authError, userId } = await resolveUser();
   if (authError) return authError;
   if (!userId) {
@@ -62,7 +64,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
     const { data, error } = await supabase
       .from("generations")
       .update({ deleted_at: new Date().toISOString() })
-      .eq("id", params.id)
+      .eq("id", id)
       .eq("user_id", userId)
       .select("id")
       .single();
@@ -76,7 +78,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
   const { data: generation } = await supabase
     .from("generations")
     .select("storage_path")
-    .eq("id", params.id)
+    .eq("id", id)
     .eq("user_id", userId)
     .single();
 
@@ -89,7 +91,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
   const { error } = await supabase
     .from("generations")
     .delete()
-    .eq("id", params.id)
+    .eq("id", id)
     .eq("user_id", userId);
 
   if (error) {

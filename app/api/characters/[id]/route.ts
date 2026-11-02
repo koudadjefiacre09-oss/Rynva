@@ -8,7 +8,8 @@ const patchSchema = z.object({
   description: z.string().max(500).nullable().optional(),
 });
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const { response: authError, userId } = await resolveUser();
   if (authError) return authError;
   if (!userId) {
@@ -31,7 +32,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   const { error } = await supabase
     .from("characters")
     .update({ ...parsed.data, updated_at: new Date().toISOString() })
-    .eq("id", params.id)
+    .eq("id", id)
     .eq("user_id", userId);
 
   if (error) {
@@ -41,7 +42,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   return NextResponse.json({ ok: true });
 }
 
-export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const { response: authError, userId } = await resolveUser();
   if (authError) return authError;
   if (!userId) {
@@ -53,7 +55,7 @@ export async function DELETE(_request: Request, { params }: { params: { id: stri
   const { data: character } = await supabase
     .from("characters")
     .select("storage_path")
-    .eq("id", params.id)
+    .eq("id", id)
     .eq("user_id", userId)
     .single();
 
@@ -66,7 +68,7 @@ export async function DELETE(_request: Request, { params }: { params: { id: stri
   const { error } = await supabase
     .from("characters")
     .delete()
-    .eq("id", params.id)
+    .eq("id", id)
     .eq("user_id", userId);
 
   if (error) {
