@@ -793,7 +793,7 @@ function TextToVideo({ modeTabs }: { modeTabs: React.ReactNode }) {
             ) : (
               <>
                 <ArrowUp className="h-4 w-4" />
-                Générer
+                Générer (1 crédit vidéo)
               </>
             )}
           </button>
