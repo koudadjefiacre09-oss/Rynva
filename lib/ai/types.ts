@@ -5,6 +5,8 @@ export interface ImageGenerationInput {
   aspectRatio?: "2:3" | "3:2" | "1:1" | "9:16" | "16:9";
   /** How many variations to generate in one call (1-4, default 4). */
   variations?: number;
+  /** Image to transform/take inspiration from (https URL). Uses an image-editing model. */
+  referenceImageUrl?: string;
 }
 export interface ImageGenerationOutput {
   /** First image — kept for callers (design, character preview) that only ever want one. */

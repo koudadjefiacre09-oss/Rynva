@@ -23,6 +23,10 @@ import type {
 // Verify each model's exact optional parameters on its Replicate page before
 // relying on them: schemas occasionally change between model versions.
 const IMAGE_MODEL = "black-forest-labs/flux-schnell";
+// Image + instruction → new image ("change the background", "make it a
+// watercolor"...). FLUX Kontext keeps the subject of the reference. It
+// returns one image per prediction, so variations run in parallel.
+const IMAGE_EDIT_MODEL = "black-forest-labs/flux-kontext-pro";
 // wan-2.2-*-fast is silent (no audio track at all). wan-2.7 costs more and is
 // slower, but auto-generates matching audio when no `audio` file is given —
 // worth it since AI Video is meant to produce a finished, watchable clip.
@@ -149,6 +153,20 @@ export function createReplicateProvider(apiToken: string): AiProvider {
 
     async generateImage(input: ImageGenerationInput): Promise<ImageGenerationOutput> {
       const numOutputs = Math.min(4, Math.max(1, Math.round(input.variations ?? 4)));
+      if (input.referenceImageUrl) {
+        const outputs = await Promise.all(
+          Array.from({ length: numOutputs }, () =>
+            runModel(replicate, IMAGE_EDIT_MODEL, {
+              prompt: input.prompt,
+              input_image: input.referenceImageUrl,
+              aspect_ratio: "match_input_image",
+              output_format: "png",
+            })
+          )
+        );
+        const urls = outputs.map(outputToUrl);
+        return { url: urls[0], urls, prompt: input.prompt };
+      }
       const output = await runModel(replicate, IMAGE_MODEL, {
         prompt: input.prompt,
         aspect_ratio: input.aspectRatio ?? "1:1",

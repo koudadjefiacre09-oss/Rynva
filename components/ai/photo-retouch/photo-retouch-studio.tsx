@@ -58,7 +58,14 @@ function sameSettings(a: RetouchSettings, b: RetouchSettings) {
   return (Object.keys(a) as (keyof RetouchSettings)[]).every((k) => k === "intensity" || a[k] === b[k]);
 }
 
-export function PhotoRetouchStudio({ toolSwitcher }: { toolSwitcher?: React.ReactNode }) {
+export function PhotoRetouchStudio({
+  toolSwitcher,
+  initialFile,
+}: {
+  toolSwitcher?: React.ReactNode;
+  /** A creation sent from another tool ("Retoucher"), loaded on mount. */
+  initialFile?: File | null;
+}) {
   const [phase, setPhase] = useState<Phase>("idle");
   const [file, setFile] = useState<File | null>(null);
   const [format, setFormat] = useState<DetectedFormat | null>(null);
@@ -188,6 +195,14 @@ export function PhotoRetouchStudio({ toolSwitcher }: { toolSwitcher?: React.Reac
     },
     [resetAll, startUpload]
   );
+
+  const loadedInitial = useRef<File | null>(null);
+  useEffect(() => {
+    if (!initialFile || loadedInitial.current === initialFile) return;
+    loadedInitial.current = initialFile;
+    const timer = setTimeout(() => void handleFile(initialFile), 0);
+    return () => clearTimeout(timer);
+  }, [initialFile, handleFile]);
 
   async function ensureJob(): Promise<Job | null> {
     if (job) return job;

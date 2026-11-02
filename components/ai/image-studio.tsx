@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import {
   ArrowUp,
   Check,
@@ -13,12 +12,15 @@ import {
   Palette,
   RefreshCw,
   Ratio,
-  Sparkles,
   Trash2,
   type LucideIcon,
+  X,
+  ImagePlus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { notifySuccess } from "@/lib/toast";
+import { SendToTools } from "@/components/ai/shared/send-to-tools";
+import { fileToDataUrl } from "@/components/ai/shared/image-input";
 import { deletePromptPreset } from "@/app/(app)/ai/image/actions";
 import type { PromptPreset } from "@/lib/prompts/types";
 
@@ -94,6 +96,9 @@ export function ImageStudio({ initialPresets = [] }: { initialPresets?: PromptPr
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ImageResult | null>(null);
+  const [reference, setReference] = useState<string | null>(null);
+  const [referenceError, setReferenceError] = useState<string | null>(null);
+  const referenceInput = useRef<HTMLInputElement>(null);
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
 
   const [presets, setPresets] = useState<PromptPreset[]>(initialPresets);
@@ -112,7 +117,12 @@ export function ImageStudio({ initialPresets = [] }: { initialPresets?: PromptPr
       const res = await fetch("/api/ai/image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: `${prompt}${styleModifier}`, aspectRatio, variations: VARIATIONS }),
+        body: JSON.stringify({
+          prompt: `${prompt}${styleModifier}`,
+          aspectRatio,
+          variations: VARIATIONS,
+          referenceImageUrl: reference ?? undefined,
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -167,12 +177,59 @@ export function ImageStudio({ initialPresets = [] }: { initialPresets?: PromptPr
               id="image-prompt"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              placeholder="Ex : un renard bleu néon dans une forêt cyberpunk, style illustration digitale"
+              placeholder={
+                reference
+                  ? "Ex : remplace l'arrière-plan par une plage au coucher du soleil, garde la personne identique"
+                  : "Ex : un renard bleu néon dans une forêt cyberpunk, style illustration digitale"
+              }
               rows={4}
               maxLength={4000}
               className="resize-none bg-transparent px-1 pt-1 text-sm text-zinc-900 placeholder:text-zinc-400 focus-visible:outline-none dark:text-white dark:placeholder:text-zinc-500"
             />
+            {reference && (
+              <div className="flex items-center gap-2 px-1">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={reference} alt="Image de référence" className="h-12 w-12 rounded-lg object-cover" />
+                <span className="flex-1 text-[11px] leading-snug text-zinc-500">
+                  Image de référence : décrivez la modification ou le style voulu.
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setReference(null)}
+                  aria-label="Retirer l'image de référence"
+                  className="rounded-full p-1 text-zinc-400 hover:bg-zinc-200 hover:text-zinc-700 dark:hover:bg-zinc-700"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            )}
+            {referenceError && <p className="px-1 text-[11px] text-danger">{referenceError}</p>}
+            <input
+              ref={referenceInput}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="hidden"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                e.target.value = "";
+                if (!file) return;
+                setReferenceError(null);
+                try {
+                  setReference(await fileToDataUrl(file, 1536));
+                } catch (err) {
+                  setReferenceError(err instanceof Error ? err.message : "Image illisible.");
+                }
+              }}
+            />
             <div className="flex flex-wrap items-center gap-1.5 border-t border-zinc-200 px-1 pb-1 pt-2 dark:border-zinc-700/60">
+              <button
+                type="button"
+                onClick={() => referenceInput.current?.click()}
+                className="inline-flex h-8 items-center gap-1 rounded-full border border-zinc-200 bg-white px-2.5 text-xs text-zinc-600 transition-colors hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300"
+              >
+                <ImagePlus className="h-3 w-3 text-zinc-400" />
+                {reference ? "Changer" : "Référence"}
+              </button>
               <RatioDropdown
                 icon={Ratio}
                 label="Format"
@@ -384,15 +441,7 @@ function ResultActions({
           Télécharger
         </span>
       </a>
-      <Link
-        href={`/ai/video?sourceUrl=${encodeURIComponent(url)}${
-          generationId ? `&sourceId=${generationId}` : ""
-        }`}
-        className="inline-flex items-center gap-1.5 rounded-full border border-zinc-200 px-3.5 py-2 text-xs font-medium text-zinc-600 transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:text-zinc-300 dark:hover:border-zinc-700 dark:hover:bg-zinc-900"
-      >
-        <Sparkles className="h-3.5 w-3.5" />
-        Animer
-      </Link>
+      <SendToTools url={url} generationId={generationId} />
     </div>
   );
 }

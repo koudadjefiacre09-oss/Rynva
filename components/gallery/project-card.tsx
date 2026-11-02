@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import { Download, Sparkles, Trash2, UserPlus, Check, X, Star, RotateCcw, Maximize2 } from "lucide-react";
+import { Download, Trash2, UserPlus, Check, X, Star, RotateCcw, Maximize2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SendToTools } from "@/components/ai/shared/send-to-tools";
 import { formatRelativeTime } from "@/lib/format-relative-time";
 import type { GenerationWithUrl } from "@/lib/generations/list";
 import type { GenerationType } from "@/lib/generations/types";
@@ -290,12 +290,7 @@ export function ProjectCard({
               </button>
             </a>
             {ANIMATABLE.includes(item.type) && (
-              <Link href={`/ai/video?sourceUrl=${encodeURIComponent(item.url)}&sourceId=${item.id}`}>
-                <button type="button" className={ACTION_BUTTON}>
-                  <Sparkles className="h-3 w-3" />
-                  Animer
-                </button>
-              </Link>
+              <SendToTools url={item.url} generationId={item.id} size="sm" className="contents" />
             )}
             {CAN_BECOME_CHARACTER.includes(item.type) &&
               (charSaved ? (
