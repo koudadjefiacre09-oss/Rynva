@@ -8,6 +8,7 @@ export type ActivityAction =
   | "audio"
   | "photo-bg-remove"
   | "photo-enhance"
+  | "photo-retouch"
   | "scene"
   | "chat";
 
@@ -23,6 +24,7 @@ const COST_BY_ACTION: Record<ActivityAction, number> = {
   audio: 8,
   "photo-bg-remove": 5,
   "photo-enhance": 6,
+  "photo-retouch": 6,
   scene: 15,
   chat: 1,
 };
@@ -37,6 +39,7 @@ export const ACTION_LABEL: Record<ActivityAction, string> = {
   audio: "Génération Audio",
   "photo-bg-remove": "Suppression fond photo",
   "photo-enhance": "Amélioration photo",
+  "photo-retouch": "Retouche photo",
   scene: "Génération Scène",
   chat: "Message Chat",
 };

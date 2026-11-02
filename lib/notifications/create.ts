@@ -43,6 +43,7 @@ const GENERATION_NOUN: Partial<Record<ActivityAction, string>> = {
   scene: "scène",
   "photo-bg-remove": "suppression de fond",
   "photo-enhance": "amélioration photo",
+  "photo-retouch": "retouche photo",
 };
 
 /**
