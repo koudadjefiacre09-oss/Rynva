@@ -8,9 +8,6 @@ import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NAV_ITEMS } from "@/lib/nav-items";
 import { NAV_ACCENT, DEFAULT_NAV_ACCENT } from "@/lib/nav-colors";
-import { SidebarUserMenu } from "@/components/layout/sidebar-user-menu";
-import type { UserMenuUser } from "@/components/layout/user-menu";
-import type { Profile } from "@/lib/profiles/get";
 
 /**
  * Persistent desktop sidebar (per brief: desktop keeps a persistent sidebar,
@@ -26,19 +23,11 @@ import type { Profile } from "@/lib/profiles/get";
  * destination (see lib/nav-colors.ts, shared with the dashboard's tool
  * shortcuts) instead of a flat monochrome glyph.
  *
- * The bottom used to be a plain "Paramètres" link; it's now the account
- * avatar (SidebarUserMenu) — profile, billing, settings, admin and sign-out
- * all live in the one menu that opens above it.
+ * The account menu lives only in the topbar avatar (top right, the usual
+ * place users look for it, visible on every screen size): a second copy at
+ * the bottom of this rail was redundant.
  */
-export function Sidebar({
-  user,
-  profile = null,
-  isAdmin = false,
-}: {
-  user?: UserMenuUser | null;
-  profile?: Profile | null;
-  isAdmin?: boolean;
-}) {
+export function Sidebar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -101,10 +90,6 @@ export function Sidebar({
           );
         })}
       </nav>
-
-      {user && (
-        <SidebarUserMenu user={user} profile={profile} isAdmin={isAdmin} sidebarOpen={isOpen} />
-      )}
     </aside>
   );
 }

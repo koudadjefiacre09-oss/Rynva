@@ -60,7 +60,7 @@ export default async function HistoryPage() {
           </p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+        <div className="thin-scrollbar overflow-x-auto rounded-2xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
           <table className="w-full border-collapse text-left text-sm">
             <thead>
               <tr className="border-b border-zinc-200 dark:border-zinc-800">
@@ -70,7 +70,7 @@ export default async function HistoryPage() {
                 <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-zinc-500">
                   Statut
                 </th>
-                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-zinc-500">
+                <th className="hidden px-4 py-3 text-xs font-medium uppercase tracking-wide text-zinc-500 sm:table-cell">
                   Tokens
                 </th>
                 <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wide text-zinc-500">
@@ -96,8 +96,8 @@ export default async function HistoryPage() {
                       {item.status}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-zinc-500">{item.tokens_used}</td>
-                  <td className="px-4 py-3 text-right text-xs text-zinc-400 dark:text-zinc-500">
+                  <td className="hidden px-4 py-3 text-zinc-500 sm:table-cell">{item.tokens_used}</td>
+                  <td className="whitespace-nowrap px-4 py-3 text-right text-xs text-zinc-400 dark:text-zinc-500">
                     {dateFormatter.format(new Date(item.created_at))}
                   </td>
                 </tr>

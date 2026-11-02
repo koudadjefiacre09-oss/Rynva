@@ -22,7 +22,7 @@ export default async function ProjectsPage() {
   const items = await listGenerations(user.id);
 
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-6 sm:flex-row sm:gap-8">
+    <div className="mx-auto flex max-w-6xl flex-col gap-4 md:flex-row md:gap-8">
       <ProjectsSubnav active="projects" />
 
       <div className="flex min-w-0 flex-1 flex-col gap-6">

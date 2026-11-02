@@ -20,7 +20,7 @@ export default async function TrashPage() {
   const items = await listTrash(user.id);
 
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-6 sm:flex-row sm:gap-8">
+    <div className="mx-auto flex max-w-6xl flex-col gap-4 md:flex-row md:gap-8">
       <ProjectsSubnav active="trash" />
 
       <div className="flex min-w-0 flex-1 flex-col gap-6">
