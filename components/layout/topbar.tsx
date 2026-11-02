@@ -7,6 +7,7 @@ import { UserMenu, type UserMenuUser } from "@/components/layout/user-menu";
 import { NotificationsBell } from "@/components/layout/notifications-bell";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { ActiveJobs } from "@/components/layout/active-jobs";
+import { CreditsBadge } from "@/components/layout/credits-badge";
 import { CommandPalette } from "@/components/search/command-palette";
 import { notifySuccess } from "@/lib/toast";
 import type { Profile } from "@/lib/profiles/get";
@@ -54,7 +55,6 @@ export function Topbar({
   unreadNotificationsCount?: number;
 }) {
   const pathname = usePathname();
-  const tokensLabel = new Intl.NumberFormat("fr-FR").format(profile?.tokensConsumed ?? 0);
 
   function handleInvite() {
     if (!user) return;
@@ -86,7 +86,7 @@ export function Topbar({
         </div>
       )}
 
-      <div className="ml-auto flex items-center gap-3">
+      <div className="ml-auto flex items-center gap-2 sm:gap-3">
         {user && <ActiveJobs />}
 
         <button
@@ -99,12 +99,7 @@ export function Topbar({
           Invite friends
         </button>
 
-        <span
-          title="Crédits consommés au total"
-          className="hidden items-center gap-1.5 rounded-full bg-gradient-brand px-2.5 py-1 text-xs font-medium text-white sm:inline-flex"
-        >
-          {tokensLabel} crédits utilisés
-        </span>
+        <CreditsBadge profile={profile} />
 
         <ThemeToggleCompact />
 
