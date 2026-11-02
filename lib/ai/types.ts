@@ -20,6 +20,8 @@ export interface VideoGenerationInput {
   resolution?: "720p" | "1080p";
   /** When set, animates this existing image instead of generating from text alone. */
   sourceImageUrl?: string;
+  /** When set, Replicate calls this URL when the job completes (see app/api/webhooks/replicate). */
+  webhookUrl?: string;
 }
 /**
  * Video generation on Replicate (wan-2.7) can take 5-7+ minutes — far past

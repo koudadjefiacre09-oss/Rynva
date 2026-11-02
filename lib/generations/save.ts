@@ -1,3 +1,4 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import type { GenerationType } from "@/lib/generations/types";
 
@@ -24,6 +25,11 @@ interface SaveGenerationInput {
   prompt?: string;
   metadata?: Record<string, unknown>;
   sourceGenerationId?: string;
+  /**
+   * Client to write with. Defaults to the signed-in user's session client;
+   * pass the service-role client where there is no session (webhooks).
+   */
+  client?: SupabaseClient;
 }
 
 /**
@@ -47,7 +53,7 @@ export async function saveGeneration(
     const id = crypto.randomUUID();
     const path = `${input.userId}/${id}.${extension}`;
 
-    const supabase = await createClient();
+    const supabase = input.client ?? (await createClient());
 
     const { error: uploadError } = await supabase.storage
       .from("generations")

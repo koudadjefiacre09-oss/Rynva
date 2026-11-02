@@ -107,7 +107,7 @@ function formatExpiry(v: string) {
   return d.length >= 2 ? `${d.slice(0, 2)}/${d.slice(2, 4)}` : d;
 }
 
-export function PremiumScreen() {
+export function PremiumScreen({ paymentsEnabled = false }: { paymentsEnabled?: boolean }) {
   const [step, setStep] = useState<Step>("plans");
   const [billing, setBilling] = useState<Billing>("monthly");
   const [selectedPlan, setSelectedPlan] = useState<PlanId>("pro");
@@ -179,7 +179,7 @@ export function PremiumScreen() {
     );
   }
 
-  if (step === "payment") {
+  if (step === "payment" && paymentsEnabled) {
     return (
       <div className="mx-auto flex max-w-md flex-col gap-6">
         <button
@@ -449,7 +449,19 @@ export function PremiumScreen() {
         })}
       </div>
 
-      {selectedPlan === "pro" && (
+      {selectedPlan === "pro" && !paymentsEnabled && (
+        <div className="mx-auto flex w-full max-w-sm flex-col items-center gap-2 text-center">
+          <a
+            href="mailto:hello@rynva.app?subject=Passer%20%C3%A0%20RYNVA%20Pro"
+            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-zinc-900 text-sm font-medium text-white transition-colors hover:bg-black dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
+          >
+            <Sparkles className="h-4 w-4" />
+            Nous contacter pour passer à Pro
+          </a>
+          <p className="text-xs text-zinc-500">Le paiement en ligne sécurisé arrive très bientôt.</p>
+        </div>
+      )}
+      {selectedPlan === "pro" && paymentsEnabled && (
         <button
           type="button"
           onClick={() => setStep("payment")}
