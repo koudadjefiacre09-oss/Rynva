@@ -30,10 +30,8 @@ const THEME_OPTIONS: { value: Theme; icon: typeof Sun; label: string }[] = [
 ];
 
 /**
- * Shared body of the account dropdown — used by both UserMenu (topbar,
- * opens downward) and SidebarUserMenu (sidebar bottom, opens upward), which
- * only differ in their trigger button and panel position. Keeping the
- * content itself in one place means the two never drift apart.
+ * Body of the account dropdown opened by UserMenu (topbar avatar, also
+ * reused by the public SiteHeader once signed in).
  *
  * Row labels are text-sm, everything secondary (email, badges, the theme
  * switch) is text-xs — same scale the rest of the app's dropdowns use.

@@ -68,7 +68,7 @@ export function Topbar({
 
   return (
     <header className="mx-3 mt-3 flex h-16 shrink-0 items-center gap-4 rounded-3xl border border-zinc-200 bg-white px-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 lg:px-6">
-      <MobileNav user={user} profile={profile} isAdmin={profile?.isAdmin ?? false} />
+      <MobileNav />
 
       <h1 className="hidden shrink-0 text-xl font-bold tracking-tight text-zinc-900 dark:text-white md:block">
         {sectionTitle(pathname)}

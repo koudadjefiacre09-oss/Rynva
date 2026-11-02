@@ -8,27 +8,16 @@ import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NAV_ITEMS } from "@/lib/nav-items";
 import { NAV_ACCENT, DEFAULT_NAV_ACCENT } from "@/lib/nav-colors";
-import { AccountMenuContent } from "@/components/layout/account-menu-content";
-import type { UserMenuUser } from "@/components/layout/user-menu";
-import type { Profile } from "@/lib/profiles/get";
 
 /**
  * The hamburger button in the topbar (mobile/tablet only, lg:hidden) used to
  * render with no onClick at all — this is that button plus the slide-in
  * drawer it's supposed to open, since the desktop Sidebar is hidden below
  * the lg breakpoint and mobile had no nav of its own otherwise. Reuses the
- * same NAV_ITEMS/NAV_ACCENT as the desktop sidebar and the same
- * AccountMenuContent as both other account menus, so all three stay in sync.
+ * same NAV_ITEMS/NAV_ACCENT as the desktop sidebar. The account menu is the
+ * topbar avatar only (no duplicate at the bottom of this drawer).
  */
-export function MobileNav({
-  user,
-  profile = null,
-  isAdmin = false,
-}: {
-  user?: UserMenuUser | null;
-  profile?: Profile | null;
-  isAdmin?: boolean;
-}) {
+export function MobileNav() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
@@ -105,16 +94,6 @@ export function MobileNav({
               })}
             </nav>
 
-            {user && (
-              <div className="mt-auto border-t border-zinc-100 py-1 dark:border-zinc-800">
-                <AccountMenuContent
-                  user={user}
-                  profile={profile}
-                  isAdmin={isAdmin}
-                  onNavigate={() => setOpen(false)}
-                />
-              </div>
-            )}
           </div>
         </div>
       )}

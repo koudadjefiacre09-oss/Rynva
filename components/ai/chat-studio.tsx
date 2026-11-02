@@ -67,8 +67,12 @@ export function ChatStudio({
   const [mobileHistoryOpen, setMobileHistoryOpen] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
 
+  // Scroll the message list only — scrollIntoView also scrolled the whole
+  // page on mobile, hiding the chat header as soon as the page opened.
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "smooth" });
+    const list = endRef.current?.parentElement;
+    if (!list || (messages.length === 0 && !loading)) return;
+    list.scrollTo({ top: list.scrollHeight, behavior: "smooth" });
   }, [messages, loading]);
 
   async function send(content: string) {
@@ -209,7 +213,7 @@ export function ChatStudio({
   );
 
   return (
-    <div className="flex h-[calc(100vh-8rem)] gap-4">
+    <div className="flex h-[calc(100dvh-13.5rem)] min-h-[420px] gap-4 lg:h-[calc(100dvh-9.5rem)]">
       {/* History — persistent column on desktop, overlay drawer on mobile
           (chat conversations only exist for signed-in users, so this whole
           column is empty/hidden for guests until they sign up). */}
@@ -353,7 +357,7 @@ export function ChatStudio({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Écrivez votre message..."
-            className="h-11 flex-1 rounded-full border border-zinc-200 bg-zinc-100/80 px-4 text-sm text-zinc-900 placeholder:text-zinc-400 focus-visible:outline-none focus-visible:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-800/80 dark:text-white dark:placeholder:text-zinc-500 dark:focus-visible:border-zinc-500"
+            className="h-11 min-w-0 flex-1 rounded-full border border-zinc-200 bg-zinc-100/80 px-4 text-sm text-zinc-900 placeholder:text-zinc-400 focus-visible:outline-none focus-visible:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-800/80 dark:text-white dark:placeholder:text-zinc-500 dark:focus-visible:border-zinc-500"
           />
           <button
             type="submit"
