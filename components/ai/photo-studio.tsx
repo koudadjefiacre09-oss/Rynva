@@ -2,15 +2,17 @@
 
 import { useRef, useState } from "react";
 import Link from "next/link";
-import { Upload, Eraser, Sparkles, Download, User, ImageIcon } from "lucide-react";
+import { Upload, Eraser, Sparkles, Download, User, ImageIcon, Wand2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { notifySuccess } from "@/lib/toast";
+import { PhotoRetouchStudio } from "@/components/ai/photo-retouch/photo-retouch-studio";
 
 const MAX_FILE_BYTES = 10 * 1024 * 1024; // 10MB
 
-type Tool = "bg-remove" | "hd-enhance";
+type Tool = "retouch" | "bg-remove" | "hd-enhance";
+type ProcessingTool = Exclude<Tool, "retouch">;
 
-const TOOL_INFO: Record<Tool, { icon: typeof Eraser; title: string; description: string }> = {
+const TOOL_INFO: Record<ProcessingTool, { icon: typeof Eraser; title: string; description: string }> = {
   "bg-remove": {
     icon: Eraser,
     title: "Enlever le fond",
@@ -30,8 +32,37 @@ const TRANSPARENT_BG_STYLE: React.CSSProperties = {
   backgroundPosition: "0 0, 0 8px, 8px -8px, -8px 0px",
 };
 
+const TABS: { id: Tool; label: string; icon: typeof Eraser }[] = [
+  { id: "retouch", label: "Retouche", icon: Wand2 },
+  { id: "bg-remove", label: "Fond", icon: Eraser },
+  { id: "hd-enhance", label: "HD", icon: Sparkles },
+];
+
+function ToolTabs({ tool, onSelect }: { tool: Tool; onSelect: (tool: Tool) => void }) {
+  return (
+    <div className="flex gap-2 rounded-2xl border border-zinc-200 bg-zinc-50 p-1 dark:border-zinc-800 dark:bg-zinc-800/50">
+      {TABS.map(({ id, label, icon: Icon }) => (
+        <button
+          key={id}
+          type="button"
+          onClick={() => onSelect(id)}
+          className={cn(
+            "flex flex-1 items-center justify-center gap-1.5 rounded-xl px-2 py-2 text-xs font-medium transition-colors",
+            tool === id
+              ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-700 dark:text-white"
+              : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-500 dark:hover:text-zinc-300"
+          )}
+        >
+          <Icon className="h-3.5 w-3.5" />
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export function PhotoStudio() {
-  const [tool, setTool] = useState<Tool>("bg-remove");
+  const [tool, setTool] = useState<Tool>("retouch");
   const [preview, setPreview] = useState<string | null>(null);
   const [result, setResult] = useState<{ url: string; generationId?: string } | null>(null);
   const [loading, setLoading] = useState(false);
@@ -99,6 +130,10 @@ export function PhotoStudio() {
     }
   }
 
+  if (tool === "retouch") {
+    return <PhotoRetouchStudio toolSwitcher={<ToolTabs tool={tool} onSelect={selectTool} />} />;
+  }
+
   return (
     <div className="-m-4 min-h-[calc(100vh-4rem)] bg-zinc-50 px-4 py-8 dark:bg-zinc-950 lg:-m-6 lg:px-8">
       <div className="mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[380px_1fr] lg:items-start">
@@ -121,34 +156,7 @@ export function PhotoStudio() {
             onChange={(e) => handleFile(e.target.files?.[0])}
           />
 
-          <div className="flex gap-2 rounded-2xl border border-zinc-200 bg-zinc-50 p-1 dark:border-zinc-800 dark:bg-zinc-800/50">
-            <button
-              type="button"
-              onClick={() => selectTool("bg-remove")}
-              className={cn(
-                "flex flex-1 items-center justify-center gap-1.5 rounded-xl px-2 py-2 text-xs font-medium transition-colors",
-                tool === "bg-remove"
-                  ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-700 dark:text-white"
-                  : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-500 dark:hover:text-zinc-300"
-              )}
-            >
-              <Eraser className="h-3.5 w-3.5" />
-              Fond
-            </button>
-            <button
-              type="button"
-              onClick={() => selectTool("hd-enhance")}
-              className={cn(
-                "flex flex-1 items-center justify-center gap-1.5 rounded-xl px-2 py-2 text-xs font-medium transition-colors",
-                tool === "hd-enhance"
-                  ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-700 dark:text-white"
-                  : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-500 dark:hover:text-zinc-300"
-              )}
-            >
-              <Sparkles className="h-3.5 w-3.5" />
-              HD
-            </button>
-          </div>
+          <ToolTabs tool={tool} onSelect={selectTool} />
 
           {preview && (
             <div className="flex items-center gap-3">
