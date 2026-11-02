@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { LogOut } from "lucide-react";
 import { ChangePasswordForm } from "@/components/settings/change-password-form";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { DeleteAccountForm, ExportDataButton } from "@/components/settings/account-data";
 import { logout } from "@/app/auth/actions";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -64,6 +65,27 @@ export default async function SettingsPage() {
               Se déconnecter
             </button>
           </form>
+        </section>
+
+        <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none sm:p-6">
+          <h2 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Vos données</h2>
+          <p className="mt-1 text-xs text-zinc-500">
+            Téléchargez tout ce que RYNVA conserve sur vous (compte, créations, historique, conversations) dans un fichier
+            JSON, avec des liens de téléchargement de vos créations valables 7 jours.
+          </p>
+          <div className="mt-4">
+            <ExportDataButton />
+          </div>
+        </section>
+
+        <section className="rounded-2xl border border-danger/30 bg-white p-5 shadow-sm dark:bg-zinc-900 dark:shadow-none sm:p-6">
+          <h2 className="text-sm font-medium text-danger">Supprimer le compte</h2>
+          <p className="mt-1 text-xs text-zinc-500">
+            Supprime définitivement votre compte et toutes vos données. Cette action est irréversible.
+          </p>
+          <div className="mt-4">
+            <DeleteAccountForm />
+          </div>
         </section>
       </div>
     </div>

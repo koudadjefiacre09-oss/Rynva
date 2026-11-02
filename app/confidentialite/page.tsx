@@ -54,7 +54,7 @@ const sections = [
   {
     title: "6. Vos droits",
     body: [
-      "Conformément au RGPD, vous disposez d'un droit d'accès, de rectification, d'effacement et de portabilité de vos données. Pour exercer l'un de ces droits, contactez-nous à hello@rynva.app — nous répondons sous un délai raisonnable.",
+      "Conformément au RGPD, vous disposez d'un droit d'accès, de rectification, d'effacement et de portabilité de vos données. Vous pouvez exporter vos données ou supprimer votre compte vous-même depuis Paramètres. Pour tout autre droit, contactez-nous à hello@rynva.app — nous répondons sous un délai raisonnable.",
     ],
   },
   {
