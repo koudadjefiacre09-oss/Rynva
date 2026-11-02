@@ -6,6 +6,7 @@ import { ThemeToggleCompact } from "@/components/theme/theme-toggle";
 import { UserMenu, type UserMenuUser } from "@/components/layout/user-menu";
 import { NotificationsBell } from "@/components/layout/notifications-bell";
 import { MobileNav } from "@/components/layout/mobile-nav";
+import { ActiveJobs } from "@/components/layout/active-jobs";
 import { CommandPalette } from "@/components/search/command-palette";
 import { notifySuccess } from "@/lib/toast";
 import type { Profile } from "@/lib/profiles/get";
@@ -86,6 +87,8 @@ export function Topbar({
       )}
 
       <div className="ml-auto flex items-center gap-3">
+        {user && <ActiveJobs />}
+
         <button
           type="button"
           onClick={handleInvite}

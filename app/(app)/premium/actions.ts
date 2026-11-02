@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient, isAdminConfigured } from "@/lib/supabase/admin";
 
+import { PAYMENTS_UNAVAILABLE_MESSAGE, simulatedPaymentsAllowed } from "@/lib/billing/config";
+
 export type UpgradeResult = { error?: string; newCredits?: number };
 
 const PRO_CREDITS_BONUS = 1000;
@@ -22,6 +24,9 @@ const PRO_CREDITS_BONUS = 1000;
  * the amount and target row are fixed server-side, not client-supplied.
  */
 export async function upgradeToPro(): Promise<UpgradeResult> {
+  // Never grant Pro for free in production: there is no real charge here.
+  if (!simulatedPaymentsAllowed) return { error: PAYMENTS_UNAVAILABLE_MESSAGE };
+
   const supabase = await createClient();
   const {
     data: { user },

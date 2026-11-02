@@ -6,6 +6,7 @@ import { resolveUser } from "@/lib/ai/route-helpers";
 import { saveGeneration } from "@/lib/generations/save";
 import { logActivity } from "@/lib/activity/log";
 import { checkCreditQuota, consumeCredit } from "@/lib/credits/gate";
+import { finalizeJob, recordVideoJob, replicateWebhookUrl, videoJobsEnabled } from "@/lib/ai/video-jobs.server";
 
 const bodySchema = z.object({
   prompt: z.string().min(3, "Décrivez la vidéo que vous voulez générer.").max(4000),
@@ -50,13 +51,29 @@ export async function POST(request: Request) {
   }
 
   try {
+    const tracked = Boolean(userId) && videoJobsEnabled;
     const job = await provider.startVideoGeneration({
       prompt: parsed.data.prompt,
       durationSeconds: parsed.data.durationSeconds,
       resolution: parsed.data.resolution,
       sourceImageUrl: parsed.data.sourceImageUrl,
+      webhookUrl: tracked ? replicateWebhookUrl() ?? undefined : undefined,
     });
-    return NextResponse.json({ jobId: job.jobId });
+    // Recorded server-side so the video is saved even if this tab closes.
+    const recorded =
+      tracked &&
+      (await recordVideoJob({
+        id: job.jobId,
+        userId: userId!,
+        prompt: parsed.data.prompt,
+        metadata: {
+          animatedFromImage: Boolean(parsed.data.sourceImageUrl),
+          resolution: parsed.data.resolution ?? "720p",
+          durationSeconds: parsed.data.durationSeconds ?? 5,
+        },
+        sourceGenerationId: parsed.data.sourceGenerationId,
+      }));
+    return NextResponse.json({ jobId: job.jobId, background: recorded });
   } catch (err) {
     console.error("[api/ai/video POST]", err);
     if (userId) {
@@ -94,6 +111,17 @@ export async function GET(request: Request) {
   }
 
   try {
+    // Tracked job: finalized server-side, exactly once, whoever asks first
+    // (this tab, the Replicate webhook, or the jobs endpoint on a later visit).
+    if (userId && videoJobsEnabled) {
+      const result = await finalizeJob(jobId, userId);
+      if (result.status === "forbidden") {
+        return NextResponse.json({ error: "Génération introuvable." }, { status: 404 });
+      }
+      if (result.status !== "not-found") return NextResponse.json(result);
+      // not-found: job started before migration 0019 → legacy flow below.
+    }
+
     const job = await provider.checkVideoGeneration(jobId);
 
     if (job.status === "processing") {

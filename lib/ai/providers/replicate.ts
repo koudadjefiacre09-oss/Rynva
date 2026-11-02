@@ -180,14 +180,19 @@ export function createReplicateProvider(apiToken: string): AiProvider {
       // only accepts 720p/1080p (verified against the model's Replicate
       // schema) — there's no 480p to fall back to.
       const resolution = input.resolution ?? "720p";
+      const webhook = input.webhookUrl
+        ? { webhook: input.webhookUrl, webhook_events_filter: ["completed" as const] }
+        : {};
       const prediction = input.sourceImageUrl
         ? await replicate.predictions.create({
             model: IMAGE_TO_VIDEO_MODEL,
             input: { first_frame: input.sourceImageUrl, prompt: input.prompt, duration, resolution },
+            ...webhook,
           })
         : await replicate.predictions.create({
             model: VIDEO_MODEL,
             input: { prompt: input.prompt, duration, resolution },
+            ...webhook,
           });
       return { jobId: prediction.id };
     },

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { PremiumScreen } from "@/components/premium/premium-screen";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { simulatedPaymentsAllowed } from "@/lib/billing/config";
 
 export const metadata: Metadata = { title: "RYNVA Pro" };
 
@@ -15,5 +16,5 @@ export default async function PremiumPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  return <PremiumScreen />;
+  return <PremiumScreen paymentsEnabled={simulatedPaymentsAllowed} />;
 }

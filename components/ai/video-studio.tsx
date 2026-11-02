@@ -35,6 +35,52 @@ const POLL_INTERVAL_MS = 4000;
 const MAX_POLL_ATTEMPTS = 150; // ~10 minutes at 4s/poll
 const MAX_TRANSIENT_RETRIES = 5;
 
+// The job id of the video being generated, so coming back to this page
+// resumes the wait instead of showing an empty form. The video itself is
+// saved server-side either way (lib/ai/video-jobs.ts).
+const ACTIVE_JOB_KEY = "rynva:active-video-job";
+type ActiveJob = { jobId: string; kind: "text" | "image"; startedAt: number };
+
+function rememberJob(job: ActiveJob) {
+  try {
+    localStorage.setItem(ACTIVE_JOB_KEY, JSON.stringify(job));
+  } catch {
+    /* storage unavailable */
+  }
+  window.dispatchEvent(new Event("rynva:job-started"));
+}
+function forgetJob(jobId: string) {
+  try {
+    const current = JSON.parse(localStorage.getItem(ACTIVE_JOB_KEY) ?? "null") as ActiveJob | null;
+    if (current?.jobId === jobId) localStorage.removeItem(ACTIVE_JOB_KEY);
+  } catch {
+    /* storage unavailable */
+  }
+}
+function pendingJob(kind: ActiveJob["kind"]): ActiveJob | null {
+  try {
+    const job = JSON.parse(localStorage.getItem(ACTIVE_JOB_KEY) ?? "null") as ActiveJob | null;
+    if (!job || job.kind !== kind || Date.now() - job.startedAt > 20 * 60 * 1000) return null;
+    return job;
+  } catch {
+    return null;
+  }
+}
+
+function WaitingMessage({ label, background }: { label: string; background: boolean }) {
+  return (
+    <div className="flex max-w-xs flex-col items-center gap-3 text-center text-zinc-400 dark:text-zinc-500">
+      <span className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-200 border-t-zinc-500 dark:border-zinc-800 dark:border-t-zinc-400" />
+      <p className="text-sm">{label}</p>
+      <p className="text-xs leading-relaxed">
+        {background
+          ? "Comptez quelques minutes. Vous pouvez quitter cette page : la vidéo sera enregistrée dans vos Projets et vous recevrez une notification."
+          : "Ça peut prendre plusieurs minutes, restez sur cette page."}
+      </p>
+    </div>
+  );
+}
+
 async function pollVideoJob(
   jobId: string,
   params: { sourceGenerationId?: string; resolution?: string; animated?: boolean }
@@ -89,6 +135,33 @@ function AnimateFromImage({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<VideoResult | null>(null);
+  const [background, setBackground] = useState(false);
+
+  async function waitFor(jobId: string) {
+    setLoading(true);
+    try {
+      const final = await pollVideoJob(jobId, { sourceGenerationId, animated: true });
+      setResult(final);
+      notifySuccess("Votre vidéo est prête !");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Impossible de contacter le serveur.");
+    } finally {
+      forgetJob(jobId);
+      setLoading(false);
+    }
+  }
+
+  // Resume a generation started before leaving the page (deferred: reads localStorage).
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const job = pendingJob("image");
+      if (!job) return;
+      setBackground(true);
+      void waitFor(job.jobId);
+    }, 0);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -106,14 +179,14 @@ function AnimateFromImage({
       const data = await res.json();
       if (!res.ok || !data.jobId) {
         setError(data.error ?? "Une erreur est survenue.");
+        setLoading(false);
         return;
       }
-      const final = await pollVideoJob(data.jobId, { sourceGenerationId, animated: true });
-      setResult(final);
-      notifySuccess("Votre vidéo est prête !");
+      setBackground(Boolean(data.background));
+      if (data.background) rememberJob({ jobId: data.jobId, kind: "image", startedAt: Date.now() });
+      await waitFor(data.jobId);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Impossible de contacter le serveur.");
-    } finally {
       setLoading(false);
     }
   }
@@ -200,11 +273,7 @@ function AnimateFromImage({
               {error}
             </p>
           ) : loading ? (
-            <div className="flex flex-col items-center gap-3 text-zinc-400 dark:text-zinc-500">
-              <span className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-200 border-t-zinc-500 dark:border-zinc-800 dark:border-t-zinc-400" />
-              <p className="text-sm">Animation en cours...</p>
-              <p className="text-xs">Ça peut prendre plusieurs minutes, restez sur cette page.</p>
-            </div>
+            <WaitingMessage label="Animation en cours..." background={background} />
           ) : result ? (
             <div className="flex w-full max-w-lg flex-col items-center gap-4">
               <video controls src={result.url} className="w-full rounded-2xl" />
@@ -271,6 +340,32 @@ function TextToVideo() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<VideoResult | null>(null);
+  const [background, setBackground] = useState(false);
+
+  async function waitFor(jobId: string, res: Resolution) {
+    setLoading(true);
+    try {
+      const final = await pollVideoJob(jobId, { resolution: res });
+      setResult(final);
+      notifySuccess("Votre vidéo est prête !");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Impossible de contacter le serveur.");
+    } finally {
+      forgetJob(jobId);
+      setLoading(false);
+    }
+  }
+
+  // Resume a generation started before leaving the page (deferred: reads localStorage).
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const job = pendingJob("text");
+      if (!job) return;
+      setBackground(true);
+      void waitFor(job.jobId, "720p");
+    }, 0);
+    return () => clearTimeout(timer);
+  }, []);
 
   const ratioMenuRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
@@ -341,14 +436,14 @@ function TextToVideo() {
       const data = await res.json();
       if (!res.ok || !data.jobId) {
         setError(data.error ?? "Une erreur est survenue.");
+        setLoading(false);
         return;
       }
-      const final = await pollVideoJob(data.jobId, { resolution });
-      setResult(final);
-      notifySuccess("Votre vidéo est prête !");
+      setBackground(Boolean(data.background));
+      if (data.background) rememberJob({ jobId: data.jobId, kind: "text", startedAt: Date.now() });
+      await waitFor(data.jobId, resolution);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Impossible de contacter le serveur.");
-    } finally {
       setLoading(false);
     }
   }
@@ -523,11 +618,7 @@ function TextToVideo() {
               {error}
             </p>
           ) : loading ? (
-            <div className="flex flex-col items-center gap-3 text-zinc-400 dark:text-zinc-500">
-              <span className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-200 border-t-zinc-500 dark:border-zinc-800 dark:border-t-zinc-400" />
-              <p className="text-sm">Génération en cours...</p>
-              <p className="text-xs">Ça peut prendre plusieurs minutes, restez sur cette page.</p>
-            </div>
+            <WaitingMessage label="Génération en cours..." background={background} />
           ) : result ? (
             <div className="flex w-full max-w-lg flex-col items-center gap-4">
               <video controls src={result.url} className="w-full rounded-2xl" />
